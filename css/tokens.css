@@ -1,0 +1,143 @@
+/* ============================================================
+   SAIMON NEXUS — capa de tokens
+   Hereda color y familia tipográfica de CAD Lite (MASTER.md).
+   Extiende: escala tipográfica para monitor HD, malla de 3
+   columnas, capa de mapa. Prefijo --nx-* = token nuevo de Nexus.
+   Un valor se nombra aquí antes de escribirse literal en
+   cualquier otra hoja.
+   ============================================================ */
+:root{
+  /* — Superficies (CAD Lite) — */
+  --bg-main:#15243E;
+  --bg-panel:#1B2E50;
+  --bg-panel-light:#2c3446;
+  --bg-input:#15243E;
+  --bg-header:#202634;
+  --bg-header-top:#151a25;
+  --bg-panel-gradient:linear-gradient(145deg,#233a63 0%,#15243E 100%);
+  --btn-gradient:linear-gradient(180deg,#4f8cf8 0%,#2d68f8 100%);
+  --overlay-scrim:rgba(0,0,0,.6);
+
+  /* — Superficies nuevas de Nexus — */
+  --nx-surface-map:#0C1729;      /* lienzo del mapa, más profundo que bg-main */
+  --nx-surface-raised-solid:#0f1c33; /* cabecera opaca de panel flotante */
+  --nx-surface-raised:color-mix(in srgb,var(--nx-surface-raised-solid) 94%,transparent);
+  --nx-surface-sunken:#101C33;   /* filas de lista, pozos */
+
+  /* — Texto (CAD Lite) — */
+  --text-primary:#ffffff;
+  --text-secondary:#9ba0ab;
+  --text-muted:#6b7280;
+  --text-placeholder:#7F92BE;
+
+  /* — Acentos (CAD Lite) — */
+  --accent-blue:#2d68f8;      --accent-blue-rgb:45,104,248;
+  --accent-blue-hover:#1e52d3;
+  --accent-green:#10b981;     --accent-green-rgb:16,185,129;
+  --accent-red:#ef4444;       --accent-red-rgb:239,68,68;
+  --accent-orange:#f59e0b;    --accent-orange-rgb:245,158,11;
+  --accent-purple:#a855f7;    --accent-purple-rgb:168,85,247;
+  --accent-cyan:#22d3ee;      --accent-cyan-rgb:34,211,238;
+  --accent-dark-blue:#1c3d7a;
+
+  /* — Tintes: el acento puro no alcanza contraste como texto sobre
+       superficie oscura. Estos son su versión legible. — */
+  --nx-tint-blue:#8eb2ff;
+  --nx-tint-blue-bright:#cfe0ff;
+  --nx-tint-green:#6ee7b7;
+  --nx-tint-cyan:#8ee9fa;
+  --nx-tint-purple:#d8b4fe;
+  --nx-tint-orange:#fcd34d;
+  --nx-tint-red:#fca5a5;
+  --nx-tint-neutral:#c3c9d6;
+
+  /* — Bordes — */
+  --border-color:#3b4256;
+  --border-color-light:#4b5563;
+  --border-input:#ffffff30;
+  --nx-border-soft:rgba(255,255,255,.07);
+  --nx-border-neutral:#8b93a7;   /* marcador sin acento propio (LPR) */
+
+  /* — Superposiciones sobre el mapa — */
+  --nx-glass:rgba(21,36,62,.88);      /* control flotante */
+  --nx-glass-soft:rgba(21,36,62,.82); /* píldora de capa */
+  --nx-marker-bg:rgba(12,23,41,.92);
+  --nx-unit-bg:rgba(12,23,41,.6);
+
+  /* — Cartografía. El estilo dark de OpenFreeMap es gris neutro; estos
+       dos valores lo reconcilian con el azul de sala. Los consume
+       js/map.js, no una hoja de estilo. — */
+  --nx-map-water:#0A1930;
+  --nx-map-building:#20355C;
+  /* Extrusión en vista día: el azul de sala choca con Bright;
+     este gris cálido mantiene volumen sin teñir el mapa de noche. */
+  --nx-map-building-day:#c4bdb0;
+  --nx-feed-gradient:linear-gradient(160deg,#2a3f66,#16243d);
+
+  /* — Capas de interacción — */
+  --nx-hover-soft:rgba(255,255,255,.04);
+  --nx-hover-strong:rgba(255,255,255,.06);
+  --nx-fill-faint:rgba(255,255,255,.07);
+  --nx-text-watermark:rgba(255,255,255,.28);
+
+  /* — Tipografía: familia de CAD Lite, escala propia de Nexus —
+     CAD Lite base 13px asume monitor de escritorio a 60cm.
+     Nexus sube un escalón: sala de control, HD, lectura a distancia. */
+  --font-family:"Poppins",system-ui,sans-serif;
+  --nx-text-3xs:.5625rem;  /*  9px — bajo el piso de sala; ver MASTER §7 */
+  --nx-text-2xs:.6875rem;  /* 11px — micro-etiqueta, conteo */
+  --nx-text-xs:.75rem;     /* 12px — meta, hint */
+  --nx-text-sm:.8125rem;   /* 13px — label */
+  --nx-text-md:.875rem;    /* 14px — BASE de componentes */
+  --nx-text-lg:1rem;       /* 16px — título de panel */
+  --nx-text-xl:1.25rem;    /* 20px — título de sección */
+  --nx-text-2xl:1.75rem;   /* 28px — cifra secundaria */
+  --nx-text-3xl:2.75rem;   /* 44px — cifra protagonista */
+
+  --font-weight-light:300; --font-weight-regular:400;
+  --font-weight-medium:500; --font-weight-semibold:600; --font-weight-bold:700;
+  --line-height-tight:1.2; --line-height-snug:1.35; --line-height-normal:1.5;
+
+  /* — Espaciado (CAD Lite) — */
+  --spacing-xs:.25rem; --spacing-sm:.5rem; --spacing-md:.75rem;
+  --spacing-lg:1.5rem; --spacing-xl:2rem;
+
+  /* — Radios (CAD Lite) — */
+  --border-radius-sm:.25rem; --border-radius-md:.5rem; --border-radius-lg:.75rem;
+  --radius-pill:999px; --radius-circle:50%;
+
+  /* — Sombra y foco — */
+  --shadow-sm:0 1px 2px rgba(0,0,0,.25);
+  --shadow-md:0 4px 12px rgba(0,0,0,.35);
+  --shadow-lg:0 12px 32px rgba(0,0,0,.45);
+  --focus-ring:0 0 0 2px rgba(var(--accent-blue-rgb),.45);
+  --focus-ring-offset:0 0 0 2px var(--bg-main),0 0 0 4px rgba(var(--accent-blue-rgb),.45);
+  /* Sobre el mapa el anillo plano se pierde: corta contra el lienzo, no contra bg-main. */
+  --nx-focus-ring-map:0 0 0 2px var(--nx-surface-map),0 0 0 4px rgba(var(--accent-blue-rgb),.85);
+
+  /* — Motion (CAD Lite) — */
+  --duration-fast:150ms; --duration-normal:200ms; --duration-slow:300ms;
+  --ease-standard:ease; --ease-out:ease-out;
+
+  /* — Capas — */
+  --z-base:1; --z-sticky:100; --z-overlay:1000; --z-modal:2000; --z-popover:3000;
+
+  /* — Malla del shell — */
+  --nx-header-h:4rem;
+  --nx-header-h-min:2rem;  /* plegado: marca, reloj y estado del sistema */
+  --nx-col-left:23rem;    /* 368px */
+  --nx-col-right:26rem;   /* 416px */
+  /* Aire alrededor de los paneles flotantes. Valor literal (no
+     var(--spacing-md)): js/map.js lo lee con getPropertyValue y
+     MapLibre pide px. Si cambia, mantener alineado con --spacing-md. */
+  --nx-panel-gap:.75rem;
+  --nx-brand-slot:2.75rem; /* alto reservado para .map-brand arriba-izquierda */
+  --nx-z-panel:20;        /* por encima del mapa; por debajo del encabezado */
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms!important;animation-iteration-count:1!important;
+    transition-duration:.01ms!important;scroll-behavior:auto!important;
+  }
+}

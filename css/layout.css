@@ -1,0 +1,613 @@
+/* ============================================================
+   SHELL Y LAYOUT
+   Malla de tres columnas, encabezado global y contenedores de
+   cada panel. Define DÓNDE va cada cosa.
+   ============================================================ */
+
+/* ============================================================
+   SHELL
+   ============================================================ */
+.shell{
+  /* El mapa llena el viewport. Las columnas flotan encima. */
+  display:grid;height:100vh;min-width:81.25rem;position:relative;
+  grid-template-columns:minmax(0,1fr);
+  grid-template-rows:minmax(0,1fr);
+  grid-template-areas:"map";
+}
+
+/* ---------- Avatar / meta reutilizados en el HUD del mapa ---------- */
+.avatar{
+  width:2rem;height:2rem;border-radius:var(--radius-circle);background:var(--accent-dark-blue);
+  border:1px solid var(--border-color-light);display:grid;place-items:center;
+  font-size:var(--nx-text-xs);font-weight:var(--font-weight-semibold);flex-shrink:0;
+}
+
+.icon-btn{
+  position:relative;width:2rem;height:2rem;display:grid;place-items:center;
+  background:none;border:0;border-radius:var(--border-radius-sm);color:var(--text-secondary);cursor:pointer;
+  transition:color var(--duration-normal) var(--ease-standard),background-color var(--duration-normal) var(--ease-standard);
+}
+
+.icon-btn:hover:not(:disabled){color:var(--text-primary);background:var(--nx-hover-strong)}
+
+.icon-btn__badge{
+  position:absolute;top:.1875rem;right:.1875rem;min-width:.9375rem;height:.9375rem;
+  padding:0 .1875rem;border-radius:var(--radius-pill);background:var(--accent-red);
+  font-size:var(--nx-text-3xs);font-weight:var(--font-weight-semibold);
+  display:grid;place-items:center;color:var(--text-primary);
+}
+
+/* ============================================================
+   PANELES FLOTANTES — izquierda y derecha
+   Misma ancla (top/bottom/gap). Izquierda = un bloque opaco.
+   Derecha = contenedor transparente; flotan las dos .ai-card.
+   ============================================================ */
+.left,.ai{
+  position:absolute;z-index:var(--nx-z-panel);
+  bottom:var(--nx-panel-gap);
+  flex-direction:column;min-height:0;
+}
+
+.left{
+  top:calc(var(--nx-panel-gap) + var(--nx-brand-slot) + var(--spacing-sm));
+  left:var(--nx-panel-gap);width:var(--nx-col-left);overflow:hidden;
+  display:flex;
+  background:var(--nx-surface-raised);border:1px solid var(--border-color);
+  border-radius:var(--border-radius-lg);box-shadow:var(--shadow-lg);
+}
+
+.ai{
+  top:var(--nx-panel-gap);
+  right:var(--nx-panel-gap);width:var(--nx-col-right);
+  display:flex;overflow:visible;background:transparent;border:0;box-shadow:none;
+}
+
+/* display:flex arriba gana al [hidden] del UA — forzar cierre explícito. */
+.ai[hidden],
+.shell:not(.is-right-open) .ai{
+  display:none;
+}
+
+.shell.is-head-min .left{
+  top:calc(var(--nx-panel-gap) + var(--nx-brand-slot) + var(--spacing-sm));
+}
+
+.shell.is-head-min .ai{top:var(--nx-panel-gap)}
+
+/* ============================================================
+   COLUMNA IZQUIERDA — contexto cuantitativo
+   ============================================================ */
+
+/* Selector de dominio — Modelo B: cambia SOLO esta columna */
+.domains{
+  display:flex;gap:.125rem;padding:var(--spacing-sm) var(--spacing-md) 0;
+  border-bottom:1px solid var(--nx-border-soft);
+}
+
+.domain{
+  flex:1;padding:.5rem .25rem .625rem;background:none;border:0;
+  border-bottom:2px solid transparent;color:var(--text-muted);
+  font-size:var(--nx-text-xs);cursor:pointer;display:grid;gap:.25rem;justify-items:center;
+  transition:color var(--duration-normal) var(--ease-standard),
+             border-color var(--duration-normal) var(--ease-standard);
+}
+
+.domain svg{width:1.125rem;height:1.125rem}
+
+.domain:hover{color:var(--text-secondary)}
+
+.domain.is-active{color:var(--text-primary);border-bottom-color:var(--accent-blue)}
+
+.domain.is-active svg{color:var(--accent-blue)}
+
+/* Densidad calibrada a 1080. El scroll crece con el panel; la
+   última sección (KPIs) absorbe el sobrante vertical. */
+.left__scroll{
+  flex:1;min-height:0;overflow-y:auto;padding:var(--spacing-md);
+  display:flex;flex-direction:column;gap:var(--spacing-md);
+}
+
+.left__scroll>*{flex:0 0 auto}
+
+/* Un poco de aire arriba/abajo (~5% del ancho del panel ≈ 0.5–0.6 rem
+   mínimo) para no pegar sectores a categorías ni a KPIs. */
+.left__scroll>section:has(#sectors){padding-block:5%}
+
+.left .sect__head{margin-bottom:var(--spacing-sm)}
+
+/* — Cifra protagonista + tendencia — */
+.headline__label{font-size:var(--nx-text-sm);color:var(--text-secondary);margin:0 0 .125rem}
+
+.headline__value{
+  font-size:var(--nx-text-3xl);font-weight:var(--font-weight-bold);
+  line-height:var(--line-height-tight);letter-spacing:-.02em;margin:0;
+}
+
+.left .headline__value{font-size:calc(var(--nx-text-2xl) * 1.75)}
+
+.headline__unit{font-size:var(--nx-text-xl);font-weight:var(--font-weight-medium);color:var(--text-secondary);margin-left:.25rem}
+
+.left .spark{margin-top:var(--spacing-sm)}
+
+.left .spark svg{height:2.25rem}
+
+.left .row{padding:.25rem .375rem;gap:var(--spacing-xs) var(--spacing-sm)}
+
+.left .row__chip{width:1.5rem;height:1.5rem;font-size:var(--nx-text-2xs)}
+
+/* Sectores en 3 columnas: sin fondo de tarjeta; donut más grande. */
+.left .sectors{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:var(--spacing-xs);
+}
+
+.left .sector{
+  grid-template-columns:1fr;justify-items:center;text-align:center;
+  gap:var(--spacing-xs);padding:var(--spacing-xs) 0;
+  background:transparent;border:0;align-items:start;
+}
+
+.left .donut{width:4.25rem;height:4.25rem}
+
+.left .donut__pct{font-size:var(--nx-text-sm)}
+
+.left .sector__name{
+  font-size:var(--nx-text-2xs);line-height:var(--line-height-snug);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+
+.left .sector__value{font-size:var(--nx-text-md)}
+
+.left .sector__value small{
+  display:block;margin-left:0;margin-top:.125rem;
+  font-size:var(--nx-text-2xs);color:var(--text-muted);
+}
+
+.left .sector__delta{font-size:var(--nx-text-2xs)}
+
+/* KPIs compactos: altura natural, sin estirar. */
+.left .kpis{gap:var(--spacing-xs)}
+
+.left .kpi{padding:.5rem .625rem}
+
+.left .kpi__value{font-size:var(--nx-text-xl)}
+
+.left .kpi__label,.left .kpi__delta{margin-top:.125rem}
+
+/* ============================================================
+   CENTRO — mapa táctico
+   ============================================================ */
+.map{grid-area:map;position:relative;background:var(--nx-surface-map);overflow:hidden;min-width:0}
+
+/* Contenedor de MapLibre. Conserva el nombre que tenía el lienzo SVG
+   porque el encuadre dentro de <main class="map"> no cambió. */
+.map__canvas{position:absolute;inset:0;width:100%;height:100%}
+
+/* HUD superior: marca arriba-izquierda; capas centradas en el corredor. */
+.map-brand{
+  position:absolute;top:var(--nx-panel-gap);left:var(--nx-panel-gap);
+  z-index:calc(var(--nx-z-panel) + 2);
+  display:flex;align-items:center;gap:var(--spacing-md);
+  width:var(--nx-col-left);box-sizing:border-box;
+  padding:.4375rem .75rem .4375rem .875rem;
+  background:var(--nx-surface-raised);border:1px solid var(--border-color);
+  border-radius:var(--border-radius-lg);box-shadow:var(--shadow-lg);
+  color:var(--text-primary);backdrop-filter:blur(.5rem);
+}
+
+.map-brand__logo{
+  height:1.5rem;width:auto;display:block;flex-shrink:0;
+}
+
+.map-brand__meta{
+  display:flex;align-items:center;gap:var(--spacing-sm);
+  padding-left:var(--spacing-sm);border-left:1px solid var(--nx-border-soft);
+  min-width:0;flex:1;
+}
+
+.map-brand__item{
+  display:inline-flex;align-items:center;gap:.3125rem;
+  font-size:var(--nx-text-xs);color:var(--text-secondary);white-space:nowrap;
+}
+
+.map-brand__item svg{width:.875rem;height:.875rem;flex-shrink:0;color:var(--text-muted)}
+
+.map-brand .avatar{
+  width:1.625rem;height:1.625rem;font-size:var(--nx-text-2xs);margin-left:auto;
+}
+
+/* HUD del mapa: vive en el corredor libre entre los dos paneles.
+   Sin este inset, capas y controles quedarían bajo las columnas. */
+.map__inset-left{
+  left:calc(var(--nx-panel-gap) + var(--nx-col-left) + var(--nx-panel-gap));
+}
+
+.map__inset-right{
+  right:calc(var(--nx-panel-gap) + var(--nx-col-right) + var(--nx-panel-gap));
+}
+
+/* Sin panel derecho: el HUD derecho se pega al margen del mapa. */
+.shell:not(.is-right-open) .map__inset-right{
+  right:var(--nx-panel-gap);
+}
+
+/* La atribución de OpenFreeMap es obligatoria y no se oculta; se corre
+   a la izquierda del muelle (card + controles) para no quedar debajo. */
+.maplibregl-ctrl-bottom-right{
+  right:calc(var(--nx-panel-gap) + var(--nx-col-right) + var(--nx-panel-gap) + 24.5rem);
+}
+
+.shell:not(.is-right-open) .maplibregl-ctrl-bottom-right{
+  right:calc(var(--nx-panel-gap) + 24.5rem);
+}
+
+/* Muelle inferior derecho: card de robot + columna de controles */
+.map-dock{
+  position:absolute;bottom:var(--spacing-md);z-index:var(--z-base);
+  display:flex;align-items:flex-end;gap:var(--spacing-sm);
+  pointer-events:none;
+}
+
+.map-dock .mapctl,
+.map-dock .devcard{pointer-events:auto}
+
+/* Controles del mapa */
+.mapctl{
+  display:grid;gap:.375rem;justify-items:center;flex-shrink:0;
+}
+
+.mapctl button{
+  width:2.25rem;height:2.25rem;display:grid;place-items:center;cursor:pointer;
+  background:var(--nx-glass);backdrop-filter:blur(.5rem);
+  border:1px solid var(--border-color);border-radius:var(--border-radius-sm);
+  color:var(--text-secondary);font-size:var(--nx-text-xs);font-weight:var(--font-weight-medium);
+  transition:color var(--duration-fast) var(--ease-standard),border-color var(--duration-fast) var(--ease-standard);
+}
+
+.mapctl button:hover:not(:disabled){color:var(--text-primary);border-color:var(--border-color-light)}
+
+.mapctl button[aria-pressed="true"]:not(:disabled){
+  color:var(--text-primary);border-color:rgba(var(--accent-blue-rgb),.6);
+  background:rgba(var(--accent-blue-rgb),.18);
+}
+
+.mapctl button:focus-visible,.mapview:focus-visible{box-shadow:var(--nx-focus-ring-map)}
+
+.mapctl button svg{width:1rem;height:1rem}
+
+/* La brújula es más grande y redonda; no hereda el cuadrado de .mapctl button. */
+.mapctl .compass{
+  width:2.75rem;height:2.75rem;border-radius:var(--radius-circle);
+}
+
+.mapview{
+  position:absolute;bottom:var(--spacing-md);
+  display:inline-flex;align-items:center;gap:var(--spacing-sm);
+  padding:.5rem .875rem;background:var(--nx-glass);backdrop-filter:blur(.5rem);
+  border:1px solid var(--border-color);border-radius:var(--border-radius-sm);
+  color:var(--text-secondary);font-size:var(--nx-text-sm);cursor:pointer;
+  transition:color var(--duration-fast) var(--ease-standard),
+             border-color var(--duration-fast) var(--ease-standard),
+             background-color var(--duration-fast) var(--ease-standard);
+}
+
+.mapview:hover{color:var(--text-primary);border-color:var(--border-color-light)}
+
+.mapview[aria-pressed="true"]{
+  color:var(--text-primary);border-color:rgba(var(--accent-blue-rgb),.6);
+  background:rgba(var(--accent-blue-rgb),.18);
+}
+
+.mapview svg{width:1rem;height:1rem}
+
+/* Avatar de Simon Core — HUD fijo junto al panel derecho.
+   Hover / foco despliega el menú de acciones (teatro visual). */
+.agent-orb{
+  position:absolute;top:var(--spacing-md);z-index:calc(var(--nx-z-panel) + 1);
+  width:7.5rem;display:grid;justify-items:center;
+  filter:drop-shadow(0 .5rem 1rem rgba(0,0,0,.35));
+}
+
+.agent-orb__figure{
+  position:relative;display:grid;justify-items:center;width:100%;
+}
+
+.agent-orb__pad{
+  grid-area:1/1;align-self:end;width:5.5rem;height:1.35rem;margin-bottom:.15rem;
+  border-radius:50%;
+  background:radial-gradient(ellipse at center,
+    rgba(var(--accent-blue-rgb),.55) 0%,
+    rgba(var(--accent-blue-rgb),.12) 55%,
+    transparent 75%);
+  animation:agent-pad 2.8s var(--ease-standard) infinite;
+}
+
+.agent-orb__img{
+  grid-area:1/1;width:6.75rem;height:auto;display:block;
+  animation:agent-float 3.2s var(--ease-standard) infinite;
+}
+
+.agent-orb__label{
+  margin-top:.25rem;padding:.2rem .55rem;
+  display:inline-flex;align-items:center;gap:.375rem;
+  font-size:var(--nx-text-2xs);font-weight:var(--font-weight-medium);
+  letter-spacing:.04em;color:var(--text-secondary);
+  background:var(--nx-glass);border:1px solid var(--border-color);
+  border-radius:var(--radius-pill);backdrop-filter:blur(.5rem);
+}
+
+.agent-orb__pip{
+  width:.4375rem;height:.4375rem;border-radius:var(--radius-circle);flex-shrink:0;
+  background:var(--accent-green);
+  box-shadow:0 0 .4rem rgba(var(--accent-green-rgb),.75);
+  animation:pulse 1.6s infinite;
+}
+
+/* Sin modo Vigía activo el pip queda neutro. */
+.shell:not(.is-right-open) .agent-orb__pip{
+  background:var(--text-muted);box-shadow:none;animation:none;
+}
+
+.agent-orb__menu{
+  position:absolute;right:calc(100% - .35rem);top:42%;
+  transform:translateY(-50%);
+  display:grid;gap:.4rem;justify-items:end;
+  opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity var(--duration-normal) var(--ease-standard),
+             visibility var(--duration-normal) var(--ease-standard);
+}
+
+.agent-orb:hover .agent-orb__menu,
+.agent-orb:focus-within .agent-orb__menu{
+  opacity:1;visibility:visible;pointer-events:auto;
+}
+
+.agent-orb__action{
+  --bulge:calc((1.5 - abs(1.5 - var(--i,0))) * .6rem);
+  position:relative;margin-right:var(--bulge);
+  padding:.4rem .9rem;border:0;border-radius:var(--radius-pill);
+  background:var(--btn-gradient);color:#fff;
+  font:inherit;font-size:var(--nx-text-xs);font-weight:var(--font-weight-medium);
+  letter-spacing:.01em;white-space:nowrap;cursor:pointer;
+  box-shadow:0 .25rem .75rem rgba(var(--accent-blue-rgb),.35);
+  opacity:0;transform:translateX(.85rem) scale(.96);
+  transition:opacity var(--duration-normal) var(--ease-standard),
+             transform var(--duration-normal) var(--ease-standard),
+             background-color var(--duration-fast) var(--ease-standard),
+             filter var(--duration-fast) var(--ease-standard),
+             box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.agent-orb:hover .agent-orb__action,
+.agent-orb:focus-within .agent-orb__action{
+  opacity:1;transform:translateX(0) scale(1);
+  transition-delay:calc(var(--i,0) * 45ms);
+}
+
+.agent-orb__action.is-active,
+.agent-orb__action[aria-pressed="true"]{
+  box-shadow:0 0 0 2px rgba(255,255,255,.35),0 .25rem .75rem rgba(var(--accent-blue-rgb),.45);
+}
+
+.agent-orb__action:hover,
+.agent-orb__action:focus-visible{
+  filter:brightness(1.08);
+}
+
+.agent-orb__action:focus-visible{box-shadow:var(--nx-focus-ring-map)}
+
+/* Hilo visual hacia el avatar */
+.agent-orb__action::after{
+  content:"";position:absolute;left:100%;top:50%;
+  width:calc(1rem + var(--bulge));height:1px;
+  background:linear-gradient(90deg,rgba(var(--accent-blue-rgb),.85),rgba(var(--accent-blue-rgb),.2));
+  transform:translateY(-50%);pointer-events:none;
+}
+
+@keyframes agent-float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-.35rem)}
+}
+
+@keyframes agent-pad{
+  0%,100%{opacity:.85;transform:scaleX(1)}
+  50%{opacity:1;transform:scaleX(1.08)}
+}
+
+/* En mapa día el vidrio semitransparente se lava contra el Bright:
+   HUD y marcadores pasan a superficie opaca de sala. El tema oscuro
+   no se toca. */
+#map[data-map-style="day"]{
+  --nx-focus-ring-map:0 0 0 2px #fff,0 0 0 4px rgba(var(--accent-blue-rgb),.85);
+}
+
+#map[data-map-style="day"] .layer,
+#map[data-map-style="day"] .map-brand,
+#map[data-map-style="day"] .mapview,
+#map[data-map-style="day"] .mapctl button,
+#map[data-map-style="day"] .compass,
+#map[data-map-style="day"] .agent-orb__label{
+  background:var(--bg-panel);backdrop-filter:none;
+  color:var(--text-primary);border-color:var(--border-color);
+  box-shadow:var(--shadow-md);
+}
+
+#map[data-map-style="day"] .layer{
+  color:var(--text-primary);
+}
+
+#map[data-map-style="day"] .layer:hover{
+  color:var(--text-primary);border-color:var(--border-color-light);
+}
+
+#map[data-map-style="day"] .layer[aria-pressed="true"]{
+  color:var(--text-primary);background:var(--accent-dark-blue);
+  border-color:var(--accent-blue);
+}
+
+#map[data-map-style="day"] .layer__count{
+  color:var(--nx-tint-blue-bright);background:rgba(var(--accent-blue-rgb),.35);
+}
+
+#map[data-map-style="day"] .layer[aria-pressed="false"] .layer__count{
+  color:var(--text-muted);background:var(--nx-fill-faint);
+}
+
+#map[data-map-style="day"] .mapview:hover,
+#map[data-map-style="day"] .mapctl button:hover:not(:disabled),
+#map[data-map-style="day"] .compass:hover:not(:disabled){
+  color:var(--text-primary);border-color:var(--border-color-light);
+  background:var(--nx-surface-raised);
+}
+
+#map[data-map-style="day"] .mapview[aria-pressed="true"],
+#map[data-map-style="day"] .mapctl button[aria-pressed="true"]:not(:disabled){
+  color:var(--text-primary);background:var(--accent-dark-blue);
+  border-color:var(--accent-blue);
+}
+
+/* Marcadores: fondo opaco para que el icono no pelee con el Bright. */
+#map[data-map-style="day"] .marker{
+  background:var(--nx-surface-map);box-shadow:var(--shadow-md);
+}
+
+/* El incidente es el más crítico: relleno rojo sólido, icono blanco. */
+#map[data-map-style="day"] .marker--incidente{
+  background:var(--accent-red);color:var(--text-primary);
+  box-shadow:0 0 0 2px var(--nx-surface-map),0 0 1.25rem rgba(var(--accent-red-rgb),.55);
+}
+
+/* ============================================================
+   COLUMNA DERECHA — la IA autónoma
+   Dos tarjetas apiladas: hilo (arriba) y plan (abajo). El banner
+   de autonomía queda en una sola línea para no comer altura.
+   ============================================================ */
+.ai__head{
+  display:flex;align-items:center;gap:var(--spacing-sm);
+  padding:var(--spacing-sm) var(--spacing-md);
+  border-bottom:1px solid rgba(var(--accent-green-rgb),.25);
+  background:rgba(var(--accent-green-rgb),.06);
+  flex:0 0 auto;
+}
+
+.ai__head-icon{color:var(--accent-green);display:grid;place-items:center;flex-shrink:0}
+
+.ai__head-icon svg{width:1.125rem;height:1.125rem}
+
+.ai__title{
+  margin:0;font-size:var(--nx-text-sm);font-weight:var(--font-weight-medium);
+  line-height:var(--line-height-tight);min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+
+.ai__head .autonomy__btn,
+.ai-card__head .autonomy__btn{margin-left:auto}
+
+.ai__stack{
+  flex:1;min-height:0;display:flex;flex-direction:column;gap:var(--spacing-sm);
+}
+
+.ai-card{
+  display:flex;flex-direction:column;min-height:0;overflow:hidden;
+  background:var(--nx-surface-raised);border:1px solid var(--border-color);
+  border-radius:var(--border-radius-lg);box-shadow:var(--shadow-lg);
+}
+
+.ai-card[hidden]{display:none !important}
+
+/* El hilo cede espacio al plan: el operador decide desde abajo. */
+.ai-card--thread{flex:0 1 34%;min-height:9.5rem}
+
+.ai-card--plan{flex:1 1 auto;min-height:0}
+
+.ai-card--fleet{flex:0 0 auto}
+
+.ai-card--inventory{flex:1 1 auto;min-height:0}
+
+.ai-card--routes-list,
+.ai-card--routes-detail,
+.ai-card--incidents-list,
+.ai-card--incidents-detail{
+  flex:1 1 auto;min-height:0;
+}
+
+.ai-card--routes-detail .ai-card__head,
+.ai-card--incidents-detail .ai-card__head{
+  gap:var(--spacing-sm);
+}
+
+.routes-back{
+  display:inline-flex;align-items:center;gap:.25rem;flex-shrink:0;
+  padding:.25rem .5rem;cursor:pointer;
+  background:transparent;border:1px solid var(--border-color-light);
+  border-radius:var(--border-radius-sm);color:var(--text-secondary);
+  font-size:var(--nx-text-2xs);
+  transition:color var(--duration-normal) var(--ease-standard),
+             border-color var(--duration-normal) var(--ease-standard);
+}
+
+.routes-back svg{width:.875rem;height:.875rem}
+
+.routes-back:hover{color:var(--text-primary);border-color:var(--text-secondary)}
+
+.ai-card--routes-detail .ai-card__title,
+.ai-card--incidents-detail .ai-card__title{
+  flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+
+.ai-card__head{
+  display:flex;align-items:center;gap:var(--spacing-sm);
+  padding:.5rem var(--spacing-md);border-bottom:1px solid var(--nx-border-soft);
+  flex:0 0 auto;background:var(--nx-surface-raised-solid);
+}
+
+.ai-card__title{
+  margin:0;font-size:var(--nx-text-sm);font-weight:var(--font-weight-medium);
+  color:var(--text-primary);
+}
+
+.ai-card__head .sect__link,
+.ai-card__head .autonomy__btn{margin-left:auto}
+
+.ai-card__body{flex:1;min-height:0;overflow-y:auto;padding:var(--spacing-sm) var(--spacing-sm) 0}
+
+.ai-card--plan .case{
+  flex:1;min-height:0;overflow-y:auto;border:0;border-radius:0;background:transparent;
+}
+
+.ai-card__agents{
+  flex:0 0 auto;padding:var(--spacing-sm) var(--spacing-md) var(--spacing-md);
+  border-top:1px solid var(--nx-border-soft);
+}
+
+.agents-toggle{
+  display:flex;align-items:center;gap:var(--spacing-sm);width:100%;
+  padding:.25rem 0;background:none;border:0;cursor:pointer;
+  color:var(--text-primary);font:inherit;text-align:left;
+  border-radius:var(--border-radius-sm);
+}
+
+.agents-toggle:hover .agents-toggle__label{color:var(--text-primary)}
+
+.agents-toggle:focus-visible{box-shadow:var(--focus-ring)}
+
+.agents-toggle__pip{
+  width:.4375rem;height:.4375rem;border-radius:var(--radius-circle);flex-shrink:0;
+  background:var(--accent-green);
+  box-shadow:0 0 .4rem rgba(var(--accent-green-rgb),.75);
+  animation:pulse 1.6s infinite;
+}
+
+.agents-toggle__label{
+  flex:1;font-size:var(--nx-text-sm);font-weight:var(--font-weight-medium);
+  color:var(--text-secondary);
+}
+
+.agents-toggle__chevron{
+  width:.875rem;height:.875rem;color:var(--text-muted);flex-shrink:0;
+  transition:transform var(--duration-normal) var(--ease-standard);
+}
+
+.agents-toggle[aria-expanded="true"] .agents-toggle__chevron{transform:rotate(180deg)}
+
+.agents-panel{margin-top:var(--spacing-sm)}

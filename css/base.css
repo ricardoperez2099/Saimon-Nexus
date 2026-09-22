@@ -1,0 +1,44 @@
+/* ============================================================
+   BASE
+   Reinicio, tipografía de documento, foco y barras de scroll.
+   Requiere tokens.css.
+   ============================================================ */
+
+*,*::before,*::after{box-sizing:border-box}
+
+html,body{height:100%}
+
+body{
+  margin:0;font-family:var(--font-family);font-size:var(--nx-text-md);
+  line-height:var(--line-height-normal);color:var(--text-primary);
+  background:var(--bg-main);-webkit-font-smoothing:antialiased;
+  font-variant-numeric:tabular-nums;
+}
+
+button{font:inherit;color:inherit}
+
+:focus-visible{outline:none;box-shadow:var(--focus-ring)}
+
+/* Texto solo para lector de pantalla — estado que hoy se comunica
+   únicamente por color o por forma. */
+.sr-only{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;
+}
+
+/* Control presente en la maqueta pero sin comportamiento.
+   Se atenúa para que en demostración no se lea como sistema roto.
+   Va acompañado de `inert` o `disabled` en el marcado: el atenuado
+   no basta, el control tampoco debe recibir clic ni foco. */
+.is-mock{opacity:.42;filter:saturate(.55)}
+
+:disabled{cursor:not-allowed}
+
+/* Barras de scroll discretas — en sala de control el cromo estorba */
+::-webkit-scrollbar{width:.375rem;height:.375rem}
+
+::-webkit-scrollbar-track{background:transparent}
+
+::-webkit-scrollbar-thumb{background:var(--border-color);border-radius:var(--radius-pill)}
+
+::-webkit-scrollbar-thumb:hover{background:var(--border-color-light)}
