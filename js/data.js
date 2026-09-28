@@ -138,37 +138,79 @@ const DEVICE_TYPES = {
 
 const DEVICE_STATUS_RANK = { offline:0, damaged:1, degraded:2, online:3 };
 
+/* Clips live (autoplay + loop). Rotan para no repetir el mismo en fila. */
+const LIVE_STREAM_VIDEOS = ["assets/arco2.mp4", "assets/arco3.mp4"];
+const UNIT_GROUND_VIDEOS = ["assets/perro1.mp4", "assets/perro2.mp4"];
+const DRONE_STREAM_VIDEOS = ["assets/dron1.mp4", "assets/dron2.mp4"];
+
+const nexusPickFrom = list =>
+  list[Math.floor(Math.random() * list.length)];
+
+const nexusRoundRobin = (list, cursor) => {
+  const src = list[cursor.i % list.length];
+  cursor.i += 1;
+  return src;
+};
+
+const _liveCursor = { i: 0 };
+const _groundCursor = { i: 0 };
+const _droneCursor = { i: 0 };
+
+const nexusPickLiveVideo = () => nexusRoundRobin(LIVE_STREAM_VIDEOS, _liveCursor);
+const nexusPickGroundVideo = () => nexusRoundRobin(UNIT_GROUND_VIDEOS, _groundCursor);
+const nexusPickDroneVideo = () => nexusRoundRobin(DRONE_STREAM_VIDEOS, _droneCursor);
+
+const nexusIsVideoSrc = src => /\.(mp4|webm|mov)(\?|$)/i.test(String(src || ""));
+
+const nexusLiveMediaTag = (src, className, fallbackImg) => {
+  if(nexusIsVideoSrc(src)){
+    return `<video class="${className}" src="${src}" autoplay muted loop playsinline></video>`;
+  }
+  const img = src || fallbackImg || "";
+  return img
+    ? `<img class="${className}" src="${img}" alt="" width="640" height="360" decoding="async">`
+    : "";
+};
+
 const DEVICES = [
-  { id:"cam-0412", code:"CAM-0412", name:"Av. Américas / López Mateos", type:"camara", sector:"Sector 1 Norte", status:"online",   markerKey:"camara-1" },
-  { id:"cam-0418", code:"CAM-0418", name:"Plaza del Sol — acceso N",     type:"camara", sector:"Sector 1 Norte", status:"degraded", markerKey:"camara-2" },
-  { id:"cam-0501", code:"CAM-0501", name:"Periférico — nodo 12",         type:"camara", sector:"Sector 2 Norte", status:"online",   markerKey:"camara-3" },
-  { id:"cam-0522", code:"CAM-0522", name:"Av. Vallarta — cruce 8",       type:"camara", sector:"Sector 2 Norte", status:"offline",  markerKey:"camara-4" },
-  { id:"cam-0603", code:"CAM-0603", name:"Sector 5 — torre sur",         type:"camara", sector:"Sector 5 Sur",   status:"damaged",  markerKey:"camara-5" },
+  { id:"cam-0412", code:"CAM-0412", name:"Av. Américas / López Mateos", type:"camara", sector:"Sector 1 Norte", status:"online",
+    stream:nexusPickLiveVideo(), markerKey:"camara-1" },
+  { id:"cam-0418", code:"CAM-0418", name:"Plaza del Sol — acceso N", type:"camara", sector:"Sector 1 Norte", status:"degraded",
+    stream:nexusPickLiveVideo(), markerKey:"camara-2" },
+  { id:"cam-0501", code:"CAM-0501", name:"Periférico — nodo 12", type:"camara", sector:"Sector 2 Norte", status:"online",
+    stream:nexusPickLiveVideo(), markerKey:"camara-3" },
+  { id:"cam-0522", code:"CAM-0522", name:"Av. Vallarta — cruce 8", type:"camara", sector:"Sector 2 Norte", status:"offline",
+    stream:nexusPickLiveVideo(), markerKey:"camara-4" },
+  { id:"cam-0603", code:"CAM-0603", name:"Sector 5 — torre sur", type:"camara", sector:"Sector 5 Sur", status:"damaged",
+    stream:nexusPickLiveVideo(), markerKey:"camara-5" },
 
   { id:"dr-03", code:"DR-03", name:"Óptica incidente", type:"dron", sector:"Sector 1 Norte", status:"online",
-    ops:"deployed", model:"max", modelImg:"assets/dron-max.jpg", stream:"assets/cam-0412.png", markerKey:"dron-3" },
+    ops:"deployed", model:"max", modelImg:"assets/dron-max.jpg", stream:nexusPickDroneVideo(), markerKey:"dron-3" },
   { id:"dr-07", code:"DR-07", name:"Patrulla aérea N", type:"dron", sector:"Sector 2 Norte", status:"online",
-    ops:"hangar", model:"compact", modelImg:"assets/dron-compact.jpg", markerKey:"dron-1" },
+    ops:"hangar", model:"compact", modelImg:"assets/dron-compact.jpg", stream:nexusPickDroneVideo(), markerKey:"dron-1" },
   { id:"dr-11", code:"DR-11", name:"Cobertura Sur", type:"dron", sector:"Sector 5 Sur", status:"degraded",
-    ops:"hangar", model:"max", modelImg:"assets/dron-max.jpg", markerKey:"dron-2" },
+    ops:"hangar", model:"max", modelImg:"assets/dron-max.jpg", stream:nexusPickDroneVideo(), markerKey:"dron-2" },
 
-  { id:"pr-zm14", code:"ZM-14", name:"Perro robot — Sector 1", type:"perro", sector:"Sector 1 Norte", status:"online",  markerKey:"perro-1" },
-  { id:"pr-zm19", code:"ZM-19", name:"Perro robot — Sector 2", type:"perro", sector:"Sector 2 Norte", status:"damaged", markerKey:"perro-2" },
-  { id:"pr-zm08", code:"ZM-08", name:"Perro robot — Sur",      type:"perro", sector:"Sector 5 Sur",   status:"online",  markerKey:"perro-3" },
+  { id:"pr-zm14", code:"ZM-14", name:"Perro robot — Sector 1", type:"perro", sector:"Sector 1 Norte", status:"online",
+    stream:nexusPickGroundVideo(), markerKey:"perro-1" },
+  { id:"pr-zm19", code:"ZM-19", name:"Perro robot — Sector 2", type:"perro", sector:"Sector 2 Norte", status:"damaged",
+    stream:nexusPickGroundVideo(), markerKey:"perro-2" },
+  { id:"pr-zm08", code:"ZM-08", name:"Perro robot — Sur", type:"perro", sector:"Sector 5 Sur", status:"online",
+    stream:nexusPickGroundVideo(), markerKey:"perro-3" },
 
-  { id:"hu-a07",  code:"HU-07", name:"Humanoide apoyo médico", type:"humanoide", sector:"Sector 1 Norte", status:"online",
-    modelImg:"assets/humanoide.jpg", markerKey:"humanoide-1" },
-  { id:"hu-21",   code:"HU-21", name:"Humanoide patrulla N",   type:"humanoide", sector:"Sector 2 Norte", status:"degraded",
-    modelImg:"assets/humanoide.jpg", markerKey:"humanoide-2" },
-  { id:"hu-05",   code:"HU-05", name:"Humanoide disuasión S",  type:"humanoide", sector:"Sector 5 Sur",   status:"offline",
-    modelImg:"assets/humanoide.jpg", markerKey:"humanoide-3" },
+  { id:"hu-a07", code:"HU-07", name:"Humanoide apoyo médico", type:"humanoide", sector:"Sector 1 Norte", status:"online",
+    stream:nexusPickGroundVideo(), markerKey:"humanoide-1" },
+  { id:"hu-21", code:"HU-21", name:"Humanoide patrulla N", type:"humanoide", sector:"Sector 2 Norte", status:"degraded",
+    stream:nexusPickGroundVideo(), markerKey:"humanoide-2" },
+  { id:"hu-05", code:"HU-05", name:"Humanoide disuasión S", type:"humanoide", sector:"Sector 5 Sur", status:"offline",
+    stream:nexusPickGroundVideo(), markerKey:"humanoide-3" },
 
-  { id:"arco-02", code:"ARC-02", name:"Arco Acceso Norte",  type:"arco", sector:"Sector 1 Norte", status:"online",
-    stream:"assets/arco-01.png", markerKey:"arco-1" },
-  { id:"arco-05", code:"ARC-05", name:"Arco Periférico",    type:"arco", sector:"Sector 2 Norte", status:"online",
-    stream:"assets/arco-02.png", markerKey:"arco-2" },
-  { id:"arco-08", code:"ARC-08", name:"Arco Salida Sur",    type:"arco", sector:"Sector 5 Sur",   status:"offline",
-    stream:"assets/arco-01.png", markerKey:"arco-3" }
+  { id:"arco-02", code:"ARC-02", name:"Arco Acceso Norte", type:"arco", sector:"Sector 1 Norte", status:"online",
+    stream:"assets/arco2.mp4", markerKey:"arco-1" },
+  { id:"arco-05", code:"ARC-05", name:"Arco Periférico", type:"arco", sector:"Sector 2 Norte", status:"online",
+    stream:"assets/arco3.mp4", markerKey:"arco-2" },
+  { id:"arco-08", code:"ARC-08", name:"Arco Salida Sur", type:"arco", sector:"Sector 5 Sur", status:"offline",
+    stream:"assets/arco2.mp4", markerKey:"arco-3" }
 ];
 
 /* ============================================================
@@ -407,7 +449,7 @@ const INCIDENTS = [
     address:"Av. Américas 1420",
     elapsed:"06:12",
     cam:"CAM-0412",
-    stream:"assets/cam-0412.png",
+    stream:nexusPickLiveVideo(),
     description:"Colisión entre vehículo particular y motocicleta. Dos adultos involucrados; vía parcialmente obstruida. Confirmado por 4 cámaras y despacho autónomo en curso.",
     units:[
       { code:"ZM-14", kind:"Perro robot", eta:"3 min" },
@@ -434,7 +476,7 @@ const INCIDENTS = [
     address:"Av. López Mateos · cruce 8",
     elapsed:"14:40",
     cam:"CAM-0501",
-    stream:"assets/cam-0501.jpg",
+    stream:nexusPickLiveVideo(),
     description:"Reporte de alteración en vía pública. Dos unidades en ruta. Sin lesionados reportados hasta el momento.",
     units:[
       { code:"ZM-21", kind:"Perro robot", eta:"8 min" }
@@ -458,7 +500,7 @@ const INCIDENTS = [
     address:"Corredor Sur · torre 3",
     elapsed:"02:18",
     cam:"CAM-0603",
-    stream:"assets/cam-0603.jpg",
+    stream:nexusPickLiveVideo(),
     description:"Accidente de motocicleta con posible lesionado. Pendiente de despacho; cámara CAM-0603 con señal degradada.",
     units:[],
     history:[
@@ -479,7 +521,7 @@ const INCIDENTS = [
     address:"Periférico Norte · nodo 12",
     elapsed:"22:05",
     cam:"CAM-0522",
-    stream:"assets/cam-0522.jpg",
+    stream:nexusPickLiveVideo(),
     description:"Derrumbe parcial con vía bloqueada. Maquinaria y apoyo vial en sitio. Flujo detenido en ambos sentidos.",
     units:[
       { code:"B-04", kind:"Apoyo vial", eta:"12 min" }
@@ -503,7 +545,7 @@ const INCIDENTS = [
     address:"Salida Sur · ARC-08",
     elapsed:"09:50",
     cam:"ARC-08",
-    stream:"assets/cam-lpr-08.jpg",
+    stream:nexusPickLiveVideo(),
     description:"Grupo realizando grafiti en muro peatonal. Unidad en sitio realizando valoración y disuasión.",
     units:[
       { code:"ZM-08", kind:"Perro robot", eta:"En sitio" }

@@ -160,7 +160,9 @@
   const UNIT_PROFILES = {
     robot:{
       title:"ZM-14 · Perro robot",
-      media:"robot",
+      media:"live",
+      stream: typeof nexusPickGroundVideo === "function" ? nexusPickGroundVideo() : "assets/perro1.mp4",
+      cam:"ZM-14",
       rows:[
         ["En ruta","ETA 3 min","Sector 1"],
         ["Prioridad","Alta","Despacho"],
@@ -169,7 +171,9 @@
     },
     amb:{
       title:"HU-07 · Humanoide",
-      media:"humanoide",
+      media:"live",
+      stream: typeof nexusPickGroundVideo === "function" ? nexusPickGroundVideo() : "assets/perro2.mp4",
+      cam:"HU-07",
       rows:[
         ["En ruta","ETA 5 min","Apoyo"],
         ["Misión","Disuasión","Listo"],
@@ -179,7 +183,7 @@
     drone:{
       title:"DR-03 · Dron de vigilancia",
       media:"live",
-      stream:"assets/cam-0412.png",
+      stream: typeof nexusPickDroneVideo === "function" ? nexusPickDroneVideo() : "assets/dron1.mp4",
       cam:"DR-03",
       rows:[
         ["Operación","Desplegado","Óptica"],
@@ -187,16 +191,6 @@
         ["Estado","En misión","Activo"]
       ]
     }
-  };
-
-  const STREAM_BY_DEVICE = {
-    "cam-0412":"assets/cam-0412.png",
-    "cam-0501":"assets/cam-0501.jpg",
-    "cam-0522":"assets/cam-0522.jpg",
-    "cam-0603":"assets/cam-0603.jpg",
-    "arco-02":"assets/arco-01.png",
-    "arco-05":"assets/arco-02.png",
-    "arco-08":"assets/arco-01.png"
   };
 
   let openKey = null;
@@ -207,33 +201,47 @@
     });
   };
 
+  const liveTag = (src, fallback) =>
+    typeof nexusLiveMediaTag === "function"
+      ? nexusLiveMediaTag(src, "devcard__photo", fallback)
+      : `<img class="devcard__photo" src="${src || fallback}" alt="" width="480" height="270" decoding="async">`;
+
   const renderMedia = (kind, streamSrc, camLabel) => {
     if(kind === "photo"){
-      const src = streamSrc || "assets/dron-compact.jpg";
-      media.innerHTML =
-        `<img class="devcard__photo" src="${src}" alt="" width="480" height="270" decoding="async">`;
+      media.innerHTML = liveTag(streamSrc, "assets/dron-compact.jpg");
       return;
     }
     if(kind === "live" || streamSrc){
-      const src = streamSrc || "assets/cam-0412.png";
+      const fallback = typeof nexusPickLiveVideo === "function"
+        ? nexusPickLiveVideo()
+        : "assets/arco2.mp4";
+      const src = streamSrc || fallback;
       const label = camLabel || "CAM-0412";
       media.innerHTML =
-        `<img class="devcard__photo" src="${src}" alt="" width="480" height="270" decoding="async">`
+        liveTag(src, fallback)
         + `<span class="popcard__live"><i></i>EN VIVO · ${label}</span>`;
       return;
     }
     if(kind === "robot"){
-      media.innerHTML =
-        `<img class="devcard__photo" src="assets/saimon-robot.jpg" alt="" width="320" height="200" decoding="async">`;
+      const src = typeof nexusPickGroundVideo === "function"
+        ? nexusPickGroundVideo()
+        : "assets/perro1.mp4";
+      media.innerHTML = liveTag(src, src)
+        + `<span class="popcard__live"><i></i>EN VIVO · ${camLabel || "ZM-14"}</span>`;
       return;
     }
     if(kind === "humanoide"){
-      media.innerHTML =
-        `<img class="devcard__photo" src="assets/humanoide.jpg" alt="" width="320" height="200" decoding="async">`;
+      const src = typeof nexusPickGroundVideo === "function"
+        ? nexusPickGroundVideo()
+        : "assets/perro2.mp4";
+      media.innerHTML = liveTag(src, src)
+        + `<span class="popcard__live"><i></i>EN VIVO · ${camLabel || "HU-07"}</span>`;
       return;
     }
-    media.innerHTML =
-      `<img class="devcard__photo" src="assets/saimon-robot.jpg" alt="" width="320" height="200" decoding="async">`;
+    media.innerHTML = liveTag(
+      typeof nexusPickGroundVideo === "function" ? nexusPickGroundVideo() : "assets/perro1.mp4",
+      "assets/perro1.mp4"
+    );
   };
 
   const applyProfile = (profile, key) => {
@@ -282,7 +290,7 @@
     const opsMeta = device.ops && typeof DRONE_OPS !== "undefined" ? DRONE_OPS[device.ops] : null;
 
     let mediaKind = "robot";
-    let stream = device.stream || STREAM_BY_DEVICE[device.id] || "";
+    let stream = device.stream || "";
     let cam = device.code;
     let rows = [
       ["Tipo", typeMeta.label, device.sector],
@@ -291,17 +299,16 @@
     ];
 
     if(device.type === "dron"){
+      mediaKind = "live";
+      stream = device.stream
+        || (typeof nexusPickDroneVideo === "function" ? nexusPickDroneVideo() : "assets/dron1.mp4");
       if(device.ops === "hangar"){
-        mediaKind = "photo";
-        stream = device.modelImg || "assets/dron-compact.jpg";
         rows = [
           ["Operación", opsMeta?.label || "En hangar", device.model === "max" ? "Max Tactical" : "Compact"],
           ["Estado", statusMeta.label, "Hangar"],
           ["Sector", device.sector, device.code]
         ];
       }else{
-        mediaKind = "live";
-        stream = device.stream || stream || "assets/cam-0412.png";
         rows = [
           ["Operación", opsMeta?.label || "Desplegado", "Óptica"],
           ["Estado", statusMeta.label, "Live"],
@@ -309,20 +316,26 @@
         ];
       }
     }else if(device.type === "humanoide"){
-      mediaKind = "photo";
-      stream = device.modelImg || "assets/humanoide.jpg";
+      mediaKind = "live";
+      stream = device.stream
+        || (typeof nexusPickGroundVideo === "function" ? nexusPickGroundVideo() : "assets/perro1.mp4");
     }else if(device.type === "arco"){
       mediaKind = "live";
-      stream = device.stream || STREAM_BY_DEVICE[device.id] || "assets/arco-01.png";
+      stream = device.stream
+        || (typeof nexusPickLiveVideo === "function" ? nexusPickLiveVideo() : "assets/arco2.mp4");
       rows = [
         ["Tipo", typeMeta.label, "Transmitiendo"],
         ["Estado", statusMeta.label, device.status === "online" ? "OK" : "Alerta"],
         ["Sector", device.sector, device.code]
       ];
     }else if(device.type === "camara"){
-      mediaKind = stream ? "live" : "photo";
+      mediaKind = "live";
+      stream = device.stream
+        || (typeof nexusPickLiveVideo === "function" ? nexusPickLiveVideo() : "assets/arco2.mp4");
     }else if(device.type === "perro"){
-      mediaKind = "robot";
+      mediaKind = "live";
+      stream = device.stream
+        || (typeof nexusPickGroundVideo === "function" ? nexusPickGroundVideo() : "assets/perro1.mp4");
     }
 
     applyProfile({

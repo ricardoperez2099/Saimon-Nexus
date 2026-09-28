@@ -973,14 +973,28 @@ window.nexusFocusIncidentMarker = function nexusFocusIncidentMarker(incidentId){
     const feed = stream || info.stream || "";
     if(idEl) idEl.textContent = `Incidente ${folio || info.id || ""}`.trim();
     if(descEl) descEl.textContent = desc || info.desc || "";
-    if(liveEl) liveEl.innerHTML = `<i></i>EN VIVO · ${cam || info.cam || ""}`;
-    if(shotEl){
+    const camLabel = cam || info.cam || "";
+    const feedBox = card.querySelector(".popcard__feed");
+    if(feedBox){
+      const liveBadge = `<span class="popcard__live"><i></i>EN VIVO · ${camLabel}</span>`;
       if(feed){
-        shotEl.src = feed;
-        shotEl.hidden = false;
+        const media = typeof nexusLiveMediaTag === "function"
+          ? nexusLiveMediaTag(feed, "popcard__shot", "assets/arco2.mp4")
+          : `<video class="popcard__shot" src="${feed}" autoplay muted loop playsinline></video>`;
+        feedBox.innerHTML = media + liveBadge;
       }else{
-        shotEl.removeAttribute("src");
-        shotEl.hidden = true;
+        feedBox.innerHTML = liveBadge;
+      }
+    }else{
+      if(liveEl) liveEl.innerHTML = `<i></i>EN VIVO · ${camLabel}`;
+      if(shotEl){
+        if(feed){
+          shotEl.src = feed;
+          shotEl.hidden = false;
+        }else{
+          shotEl.removeAttribute("src");
+          shotEl.hidden = true;
+        }
       }
     }
     place(Number(useLng), Number(useLat));

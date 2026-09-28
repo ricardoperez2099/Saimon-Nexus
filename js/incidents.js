@@ -122,39 +122,25 @@
     if(detailCard) detailCard.hidden = false;
   };
 
+  const pickGround = () =>
+    typeof nexusPickGroundVideo === "function" ? nexusPickGroundVideo() : "assets/perro1.mp4";
+  const pickDrone = () =>
+    typeof nexusPickDroneVideo === "function" ? nexusPickDroneVideo() : "assets/dron1.mp4";
+
   const UNIT_VISUAL = {
-    "Perro robot":{
-      photo:"assets/saimon-robot.jpg",
-      stream:"assets/cam-0603.jpg",
-      camSuffix:"óptica"
-    },
-    "Humanoide":{
-      photo:"assets/humanoide.jpg",
-      stream:"assets/humanoide.jpg",
-      camSuffix:"casco"
-    },
-    "Dron de vigilancia":{
-      photo:"assets/dron-max.jpg",
-      stream:"assets/cam-0412.png",
-      camSuffix:"gimbal"
-    },
-    "Apoyo vial":{
-      photo:"assets/saimon-robot.jpg",
-      stream:"assets/arco-01.png",
-      camSuffix:"móvil"
-    }
+    "Perro robot":{ pick: pickGround, camSuffix:"óptica" },
+    "Humanoide":{ pick: pickGround, camSuffix:"casco" },
+    "Dron de vigilancia":{ pick: pickDrone, camSuffix:"gimbal" },
+    "Apoyo vial":{ pick: pickGround, camSuffix:"móvil" }
   };
 
   const visualForUnit = u => {
-    const base = UNIT_VISUAL[u.kind] || {
-      photo:"assets/saimon-robot.jpg",
-      stream:null,
-      camSuffix:"cam"
-    };
+    const meta = UNIT_VISUAL[u.kind] || { pick: pickGround, camSuffix:"cam" };
+    const clip = meta.pick();
     return {
-      photo: u.photo || base.photo,
-      stream: u.stream || base.stream,
-      camLabel: u.cam || `${u.code} · ${base.camSuffix}`
+      photo: u.photo || clip,
+      stream: u.stream || clip,
+      camLabel: u.cam || `${u.code} · ${meta.camSuffix}`
     };
   };
 
@@ -185,22 +171,25 @@
 
   const bindStreamCarousel = (root, feeds) => {
     if(!root || !feeds.length) return;
-    const img = root.querySelector(".incident-stream__photo");
+    const frame = root.querySelector(".incident-stream__frame");
     const live = root.querySelector(".incident-stream__live");
     const tabs = root.querySelectorAll("[data-feed-i]");
     const setFeed = i => {
       const feed = feeds[i];
-      if(!feed) return;
-      if(img){
-        if(feed.src){
-          img.hidden = false;
-          img.src = feed.src;
-        }else{
-          img.hidden = true;
-        }
-      }
-      if(live){
-        live.innerHTML = feed.live
+      if(!feed || !frame) return;
+      const media = typeof nexusLiveMediaTag === "function"
+        ? nexusLiveMediaTag(feed.src, "incident-stream__photo", "")
+        : (feed.src
+          ? `<img class="incident-stream__photo" src="${feed.src}" alt="" width="640" height="360" decoding="async">`
+          : "");
+      const badge = live
+        ? live.outerHTML
+        : `<span class="incident-stream__live"><i></i>EN VIVO · ${feed.label}</span>`;
+      frame.innerHTML = (media || `<span class="incident-stream__placeholder">Señal · ${feed.label}</span>`)
+        + badge;
+      const liveNow = frame.querySelector(".incident-stream__live");
+      if(liveNow){
+        liveNow.innerHTML = feed.live
           ? `<i></i>EN VIVO · ${feed.label}`
           : feed.label;
       }
@@ -242,8 +231,11 @@
     const units = unitList.length
       ? unitList.map(u => {
         const v = visualForUnit(u);
+        const media = typeof nexusLiveMediaTag === "function"
+          ? nexusLiveMediaTag(v.photo, "incident-unit__photo", "assets/perro1.mp4")
+          : `<img class="incident-unit__photo" src="${v.photo}" alt="" decoding="async">`;
         return `<li class="incident-unit">`
-          + `<img class="incident-unit__photo" src="${v.photo}" alt="" decoding="async">`
+          + media
           + `<span class="incident-unit__meta">`
           + `<span class="incident-unit__code">${u.code}</span>`
           + `<span class="incident-unit__kind">${u.kind}</span>`
@@ -276,11 +268,14 @@
       : "";
 
     const first = feeds[0];
+    const firstMedia = first && first.src && typeof nexusLiveMediaTag === "function"
+      ? nexusLiveMediaTag(first.src, "incident-stream__photo", "")
+      : (first && first.src
+        ? `<img class="incident-stream__photo" src="${first.src}" alt="" width="640" height="360" decoding="async">`
+        : "");
     const streamFrame = first
       ? `<div class="incident-stream__frame">`
-        + (first.src
-          ? `<img class="incident-stream__photo" src="${first.src}" alt="" width="640" height="360" decoding="async">`
-          : `<span class="incident-stream__placeholder">Señal · ${first.label}</span>`)
+        + (firstMedia || `<span class="incident-stream__placeholder">Señal · ${first.label}</span>`)
         + `<span class="incident-stream__live"><i></i>EN VIVO · ${first.label}</span>`
         + `</div>`
       : `<div class="incident-stream__frame">`
