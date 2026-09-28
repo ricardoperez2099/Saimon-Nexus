@@ -195,39 +195,34 @@ map.on("load", () => applyNexusLayers(mapStyle));
    ============================================================ */
 const ICONS={
   incidente:'<path d="M12 4 2.5 20h19L12 4Z"/><path d="M12 10v4M12 17h.01"/>',
-  unidad:'<path d="M5 17h14M6.5 17V9.5L8 6h8l1.5 3.5V17"/><circle cx="8" cy="19" r="1.4"/><circle cx="16" cy="19" r="1.4"/>',
   camara:'<path d="M3 7h11v10H3z"/><path d="m14 11 7-4v10l-7-4"/>',
-  dron:'<path d="M9 9h6v6H9z"/><path d="M9 9 5 5M15 9l4-4M9 15l-4 4M15 15l4 4"/>',
-  robot:'<rect x="5" y="8" width="14" height="11" rx="2.5"/><path d="M12 4v4"/>',
-  sensor:'<circle cx="12" cy="12" r="2.5"/><path d="M6.5 6.5a8 8 0 0 0 0 11M17.5 6.5a8 8 0 0 1 0 11"/>',
-  lpr:'<rect x="3" y="7" width="18" height="10" rx="2"/><path d="M7 11v2M11 11v2M15 11v2"/>'
+  dron:'<path d="M9 9h6v6H9z"/><path d="M9 9 5 5M15 9l4-4M9 15l-4 4M15 15l4 4"/><circle cx="5" cy="5" r="1.6"/><circle cx="19" cy="5" r="1.6"/><circle cx="5" cy="19" r="1.6"/><circle cx="19" cy="19" r="1.6"/>',
+  perro:'<path d="M4 14.5c0-1.8 1.2-3 3-3h1.2L9.5 9h3.2l1.4 2.5H16c1.4 0 2.5.9 2.5 2.3V17H4v-2.5Z"/><path d="M6 17v2.5M9 17v2.5M13 17v2.5M16.5 17v2.5"/><path d="M18.5 13.5 21 11.5"/><path d="M7.5 11.5V9.2"/><circle cx="8.2" cy="12.8" r=".7"/>',
+  humanoide:'<circle cx="12" cy="5.5" r="2.4"/><path d="M8.5 21v-6.5a3.5 3.5 0 0 1 7 0V21"/><path d="M8.5 12.5h7"/><path d="M6.5 14.5 8.5 12.5M17.5 14.5 15.5 12.5"/>',
+  arco:'<path d="M3 19V9h18v10"/><path d="M3 9h18"/><path d="M7 9v5M12 9v5M17 9v5"/><path d="M5 19h3M16 19h3"/><rect x="8" y="11" width="8" height="2.5" rx=".4"/>'
 };
 
-/* Nombre legible del marcador. El número es el orden dentro de su tipo,
-   no un identificador real: como todo en la maqueta, es ilustrativo. */
 const LABELS={
-  incidente:"Incidente", unidad:"Unidad", camara:"Cámara", dron:"Dron",
-  robot:"Robot", sensor:"Sensor", lpr:"Lector LPR"
+  incidente:"Incidente",
+  camara:"Cámara",
+  dron:"Dron",
+  perro:"Perro robot",
+  humanoide:"Humanoide",
+  arco:"Arco carretero"
 };
 
-/* [tipo, lng, lat] — cobertura de demostración en algo más de 1 km
-   alrededor del centro. No son ubicaciones reales; la dispersión está
-   ajustada al encuadre: más amplia, la mitad quedaba fuera de cuadro. */
 const MARKERS=[
-  ["incidente",-103.3529,20.6619],["incidente",-103.3439,20.6650],
-  ["incidente",-103.3556,20.6562],["incidente",-103.3411,20.6601],
-  ["unidad",-103.3426,20.6565],["unidad",-103.3474,20.6588],
-  ["unidad",-103.3601,20.6683],["unidad",-103.3434,20.6538],
-  ["unidad",-103.3599,20.6615],
   ["camara",-103.3520,20.6726],["camara",-103.3493,20.6668],
   ["camara",-103.3419,20.6628],["camara",-103.3576,20.6592],
   ["camara",-103.3457,20.6559],
   ["dron",-103.3592,20.6630],["dron",-103.3430,20.6613],
   ["dron",-103.3510,20.6543],
-  ["robot",-103.3536,20.6574],["robot",-103.3429,20.6643],
-  ["sensor",-103.3544,20.6552],["sensor",-103.3482,20.6605],
-  ["sensor",-103.3427,20.6549],["sensor",-103.3520,20.6530],
-  ["lpr",-103.3466,20.6635],["lpr",-103.3552,20.6534],["lpr",-103.3424,20.6675]
+  ["perro",-103.3536,20.6574],["perro",-103.3429,20.6643],
+  ["perro",-103.3552,20.6534],
+  ["humanoide",-103.3474,20.6588],["humanoide",-103.3601,20.6683],
+  ["humanoide",-103.3434,20.6538],
+  ["arco",-103.3466,20.6635],["arco",-103.3424,20.6675],
+  ["arco",-103.3482,20.6605]
 ];
 
 /* MapLibre aplica su propio position y transform al elemento que le pasas.
@@ -254,8 +249,8 @@ const INCIDENT_LL = [-103.3529, 20.6619];
 
 /* Recursos del caso demo → marcador concreto (cerca del incidente). */
 const UNIT_MARKER = {
-  robot:{ type:"robot", index:1, callout:"ZM-14", lng:-103.3536, lat:20.6574 },
-  amb:{ type:"unidad", index:2, callout:"A-07", lng:-103.3474, lat:20.6588 },
+  robot:{ type:"perro", index:1, callout:"ZM-14", lng:-103.3536, lat:20.6574 },
+  amb:{ type:"humanoide", index:1, callout:"HU-07", lng:-103.3474, lat:20.6588 },
   drone:{ type:"dron", index:3, callout:"DR-03", lng:-103.3510, lat:20.6543 }
 };
 
@@ -495,6 +490,50 @@ function paintGeoRoute(spec){
   startRouteAnimation(coords, kind);
 }
 
+function paintMultiGeoRoutes(specs){
+  ensureRouteLayers();
+  if(!specs || !specs.length){
+    clearUnitRoute();
+    return;
+  }
+
+  const features = specs.map(spec => ({
+    type:"Feature",
+    properties:{
+      kind: spec.kind || "ground",
+      color: token(spec.colorToken) || "#2d68f8"
+    },
+    geometry:{ type:"LineString", coordinates:spec.coords }
+  }));
+
+  map.getSource(ROUTE_SOURCE).setData({
+    type:"FeatureCollection",
+    features
+  });
+
+  const primary = specs[0];
+  const color = token(primary.colorToken) || "#2d68f8";
+  const kind = primary.kind || "ground";
+
+  map.setPaintProperty(ROUTE_LAYER_GLOW, "line-color", [
+    "coalesce", ["get", "color"], color
+  ]);
+  map.setPaintProperty(ROUTE_LAYER_LINE, "line-color", [
+    "coalesce", ["get", "color"], color
+  ]);
+  map.setPaintProperty(ROUTE_LAYER_PULSE, "circle-stroke-color", color);
+  map.setPaintProperty(ROUTE_LAYER_LINE, "line-width", 3.25);
+  map.setPaintProperty(ROUTE_LAYER_LINE, "line-opacity", 0.92);
+
+  [ROUTE_LAYER_GLOW, ROUTE_LAYER_LINE, ROUTE_LAYER_PULSE].forEach(id => {
+    map.setLayoutProperty(id, "visibility", "visible");
+  });
+
+  activeRouteSpec = { coords: primary.coords, kind, colorToken: primary.colorToken, key: "multi" };
+  routePulseT = 0;
+  startRouteAnimation(primary.coords, kind);
+}
+
 function showGeoRoute(coords, { kind = "ground", colorToken = "--accent-blue", key = "route" } = {}){
   if(!coords || coords.length < 2){
     clearUnitRoute();
@@ -516,6 +555,115 @@ function showUnitRoute(unitId){
     key:"unit:"+unitId
   });
 }
+
+function mockRouteCoords(from, to, kind){
+  if(kind === "air") return [from.slice(), to.slice()];
+  const midA = [from[0], from[1] + (to[1] - from[1]) * 0.55];
+  const midB = [to[0], midA[1]];
+  return [from.slice(), midA, midB, to.slice()];
+}
+
+/* Códigos de unidad del detalle de incidente → marcador / estilo de ruta. */
+const UNIT_BY_CODE = {
+  "ZM-14":{ unitId:"robot", markerKey:"perro-1", callout:"ZM-14", colorToken:"--accent-purple", kind:"ground" },
+  "HU-07":{ unitId:"amb", markerKey:"humanoide-1", callout:"HU-07", colorToken:"--accent-blue", kind:"ground" },
+  "DR-03":{ unitId:"drone", markerKey:"dron-3", callout:"DR-03", colorToken:"--accent-green", kind:"air" },
+  "ZM-21":{ markerKey:"perro-2", callout:"ZM-21", colorToken:"--accent-purple", kind:"ground" },
+  "ZM-08":{ markerKey:"perro-3", callout:"ZM-08", colorToken:"--accent-purple", kind:"ground" },
+  "B-04":{ markerKey:"humanoide-2", callout:"B-04", colorToken:"--accent-blue", kind:"ground" }
+};
+
+function clearAssignedUnitFocus(){
+  document.querySelectorAll(".marker-anchor.is-assigned").forEach(anchor => {
+    anchor.classList.remove("is-assigned", "is-focus");
+    anchor.querySelector(".marker-ping")?.remove();
+    anchor.querySelector(".marker-callout")?.remove();
+  });
+}
+
+function focusAssignedUnitMarker(markerKey, calloutName, targetLL){
+  const btn = document.querySelector(`.marker[data-device="${markerKey}"]`);
+  if(!btn) return null;
+
+  const lng = Number(btn.dataset.lng);
+  const lat = Number(btn.dataset.lat);
+  if(Number.isNaN(lng) || Number.isNaN(lat)) return null;
+
+  const anchor = btn.closest(".marker-anchor");
+  if(!anchor) return null;
+
+  btn.hidden = false;
+  anchor.classList.add("is-assigned", "is-focus");
+
+  if(!anchor.querySelector(".marker-ping")){
+    const ping = document.createElement("div");
+    ping.className = "marker-ping";
+    ping.setAttribute("aria-hidden", "true");
+    anchor.prepend(ping);
+  }
+
+  anchor.querySelector(".marker-callout")?.remove();
+  const meters = distanciaMetros([lng, lat], targetLL);
+  const callout = document.createElement("div");
+  callout.className = "marker-callout";
+  callout.innerHTML =
+    `<span class="marker-callout__name">${calloutName}</span>`
+    + `<span class="marker-callout__dist">${formatearDistancia(meters)} del incidente</span>`;
+  anchor.appendChild(callout);
+
+  return { lng, lat, btn };
+}
+
+/* Al abrir un incidente: marca unidades asignadas + rutas hacia el punto. */
+window.nexusShowIncidentAssignedUnits = function nexusShowIncidentAssignedUnits(inc){
+  clearAssignedUnitFocus();
+
+  if(!inc || inc.lng == null || inc.lat == null){
+    clearUnitRoute();
+    return;
+  }
+
+  const target = [Number(inc.lng), Number(inc.lat)];
+  const units = inc.units || [];
+  const routeSpecs = [];
+
+  units.forEach(u => {
+    const link = UNIT_BY_CODE[u.code];
+    if(!link) return;
+
+    /* Si hay ruta teatro fija al incidente principal y el destino coincide, úsala. */
+    let coords = null;
+    if(link.unitId && UNIT_ROUTE[link.unitId]
+       && Math.abs(target[0] - INCIDENT_LL[0]) < 1e-5
+       && Math.abs(target[1] - INCIDENT_LL[1]) < 1e-5){
+      coords = UNIT_ROUTE[link.unitId].coords;
+    }
+
+    const placed = focusAssignedUnitMarker(link.markerKey, link.callout || u.code, target);
+    if(!placed) return;
+
+    if(!coords){
+      coords = mockRouteCoords([placed.lng, placed.lat], target, link.kind);
+    }
+
+    routeSpecs.push({
+      coords,
+      kind: link.kind,
+      colorToken: link.colorToken
+    });
+  });
+
+  if(routeSpecs.length){
+    paintMultiGeoRoutes(routeSpecs);
+  }else{
+    clearUnitRoute();
+  }
+};
+
+window.nexusClearIncidentAssignedUnits = function nexusClearIncidentAssignedUnits(){
+  clearAssignedUnitFocus();
+  clearUnitRoute();
+};
 
 window.nexusShowPatrolRoute = function nexusShowPatrolRoute(coords, opts){
   showGeoRoute(coords, {
@@ -568,10 +716,17 @@ MARKERS.forEach(([type, lng, lat]) => {
   }
 
   el.querySelector(".marker").dataset.device = `${type}-${index}`;
-  if(type === "incidente"){
-    const btn = el.querySelector(".marker");
-    btn.dataset.lng = String(lng);
-    btn.dataset.lat = String(lat);
+
+  const btn = el.querySelector(".marker");
+  btn.dataset.lng = String(lng);
+  btn.dataset.lat = String(lat);
+
+  if(type === "dron" && typeof DEVICES !== "undefined"){
+    const device = DEVICES.find(d => d.markerKey === `${type}-${index}`);
+    if(device && device.ops){
+      btn.classList.add(`marker--ops-${device.ops}`);
+      btn.dataset.ops = device.ops;
+    }
   }
 
   new maplibregl.Marker({ element: el })
@@ -579,8 +734,30 @@ MARKERS.forEach(([type, lng, lat]) => {
     .addTo(map);
 });
 
+/* Incidentes del módulo: un marcador por fila de INCIDENTS (data.js). */
+(function placeIncidentMarkers(){
+  if(typeof INCIDENTS === "undefined" || !Array.isArray(INCIDENTS)) return;
+  INCIDENTS.forEach((inc, i) => {
+    if(inc.lng == null || inc.lat == null) return;
+    const index = Number(inc.markerIndex) || i + 1;
+    const el = crearElementoDeMarcador("incidente", index);
+    const btn = el.querySelector(".marker");
+    btn.dataset.device = `incidente-${index}`;
+    btn.dataset.incidentId = inc.id;
+    btn.dataset.priority = inc.priority || "high";
+    btn.dataset.lng = String(inc.lng);
+    btn.dataset.lat = String(inc.lat);
+    btn.classList.add(`marker--prio-${inc.priority || "high"}`);
+    btn.setAttribute("aria-label", `Incidente ${inc.folio}`);
+    new maplibregl.Marker({ element: el })
+      .setLngLat([inc.lng, inc.lat])
+      .addTo(map);
+  });
+})();
+
 /* Resalta el marcador ligado a un recurso despachado (ondas + callout). */
 window.nexusFocusUnitMarker = function nexusFocusUnitMarker(unitId){
+  clearAssignedUnitFocus();
   document.querySelectorAll(".marker-anchor.is-focus").forEach(anchor => {
     anchor.classList.remove("is-focus");
     anchor.querySelector(".marker-ping")?.remove();
@@ -666,7 +843,10 @@ window.nexusFocusDeviceMarker = function nexusFocusDeviceMarker(markerKey, label
    mueve debajo.
    ============================================================ */
 const geoMarkers = {};
-document.querySelectorAll("#map [data-lng][data-lat]").forEach(el => {
+/* Solo popcard/radar (u otros anclajes de UI). Los .marker llevan
+   data-lng/lat para distancias; si MapLibre los re-registra aquí,
+   saca el botón del .marker-anchor y rompe focus/callout/rutas. */
+document.querySelectorAll("#map .popcard[data-lng][data-lat], #map .radar[data-lng][data-lat]").forEach(el => {
   const marker = new maplibregl.Marker({
     element: el,
     anchor: el.dataset.anchor || "center",
@@ -678,12 +858,59 @@ document.querySelectorAll("#map [data-lng][data-lat]").forEach(el => {
   if(el.classList.contains("popcard")) geoMarkers.popcard = marker;
 });
 
-/* Fichas ilustrativas. El índice 1 es el caso del panel Vigía. */
-const INCIDENT_CARDS = {
-  "1":{ id:"4300090172", desc:"Colisión vehicular · Av. Américas 1420", cam:"CAM-0412" },
-  "2":{ id:"4300090214", desc:"Alteración del orden · Av. López Mateos", cam:"CAM-0501" },
-  "3":{ id:"4300090188", desc:"Accidente de motocicleta · Sector 5", cam:"CAM-0603" },
-  "4":{ id:"4300090301", desc:"Obstrucción de vía · Periférico Norte", cam:"CAM-0522" }
+/* Fichas desde INCIDENTS (misma fuente que el panel). */
+const INCIDENT_CARDS = (() => {
+  const cards = {};
+  if(typeof INCIDENTS === "undefined") return cards;
+  INCIDENTS.forEach(inc => {
+    if(!inc.markerIndex) return;
+    cards[String(inc.markerIndex)] = {
+      id: inc.folio,
+      desc: `${inc.type} · ${inc.address}`,
+      cam: inc.cam,
+      stream: inc.stream || "",
+      incidentId: inc.id
+    };
+  });
+  return cards;
+})();
+
+const clearMarkerFocus = () => {
+  document.querySelectorAll(".marker-anchor.is-focus, .marker-anchor.is-assigned").forEach(anchor => {
+    anchor.classList.remove("is-focus", "is-assigned");
+    anchor.querySelector(".marker-ping")?.remove();
+    anchor.querySelector(".marker-callout")?.remove();
+  });
+};
+
+/* Resalta el marcador del incidente seleccionado en lista/mapa. */
+window.nexusFocusIncidentMarker = function nexusFocusIncidentMarker(incidentId){
+  clearMarkerFocus();
+  if(!incidentId) return;
+
+  const btn = document.querySelector(`.marker--incidente[data-incident-id="${incidentId}"]`);
+  if(!btn) return;
+
+  const anchor = btn.closest(".marker-anchor");
+  if(!anchor) return;
+
+  btn.hidden = false;
+  anchor.classList.add("is-focus");
+
+  const ping = document.createElement("div");
+  ping.className = "marker-ping";
+  ping.setAttribute("aria-hidden", "true");
+
+  const folio = (typeof INCIDENTS !== "undefined"
+    && INCIDENTS.find(i => i.id === incidentId)?.folio) || incidentId;
+  const callout = document.createElement("div");
+  callout.className = "marker-callout";
+  callout.innerHTML =
+    `<span class="marker-callout__name">${folio}</span>`
+    + `<span class="marker-callout__dist">Incidente</span>`;
+
+  anchor.prepend(ping);
+  anchor.appendChild(callout);
 };
 
 /* Popcard + radar: API pública para Incidentes y clic en marcador. */
@@ -693,10 +920,11 @@ const INCIDENT_CARDS = {
   const idEl = card && card.querySelector(".popcard__id");
   const descEl = card && card.querySelector(".popcard__desc");
   const liveEl = card && card.querySelector(".popcard__live");
+  const shotEl = card && card.querySelector(".popcard__shot");
   const buttons = document.querySelectorAll(".marker--incidente");
   if(!card || !radar || !geoMarkers.popcard || !geoMarkers.radar || !buttons.length) return;
 
-  let openIndex = null;
+  let openKey = null;
 
   const place = (lng, lat) => {
     geoMarkers.popcard.setLngLat([lng, lat]);
@@ -706,14 +934,28 @@ const INCIDENT_CARDS = {
   const close = () => {
     card.hidden = true;
     radar.hidden = true;
-    openIndex = null;
+    openKey = null;
+    if(typeof window.nexusFocusIncidentMarker === "function"){
+      window.nexusFocusIncidentMarker(null);
+    }
+    if(typeof window.nexusClearIncidentAssignedUnits === "function"){
+      window.nexusClearIncidentAssignedUnits();
+    }
   };
 
-  const show = ({ markerIndex, folio, desc, cam, lng, lat }) => {
+  const show = ({ markerIndex, incidentId, folio, desc, cam, stream, lng, lat }) => {
     const index = markerIndex != null ? String(markerIndex) : null;
+    const key = incidentId || index;
     let useLng = lng;
     let useLat = lat;
 
+    if((useLng == null || useLat == null) && incidentId){
+      const btn = document.querySelector(`.marker--incidente[data-incident-id="${incidentId}"]`);
+      if(btn){
+        useLng = Number(btn.dataset.lng);
+        useLat = Number(btn.dataset.lat);
+      }
+    }
     if((useLng == null || useLat == null) && index){
       const btn = document.querySelector(`.marker--incidente[data-marker-index="${index}"]`);
       if(btn){
@@ -728,13 +970,28 @@ const INCIDENT_CARDS = {
     }
 
     const info = (index && INCIDENT_CARDS[index]) || {};
+    const feed = stream || info.stream || "";
     if(idEl) idEl.textContent = `Incidente ${folio || info.id || ""}`.trim();
     if(descEl) descEl.textContent = desc || info.desc || "";
     if(liveEl) liveEl.innerHTML = `<i></i>EN VIVO · ${cam || info.cam || ""}`;
+    if(shotEl){
+      if(feed){
+        shotEl.src = feed;
+        shotEl.hidden = false;
+      }else{
+        shotEl.removeAttribute("src");
+        shotEl.hidden = true;
+      }
+    }
     place(Number(useLng), Number(useLat));
     card.hidden = false;
     radar.hidden = false;
-    openIndex = index;
+    openKey = key;
+
+    if(incidentId || info.incidentId){
+      window.nexusFocusIncidentMarker(incidentId || info.incidentId);
+    }
+
     map.easeTo({ center:[Number(useLng), Number(useLat)], duration:600, padding: mapPadding() });
   };
 
@@ -744,8 +1001,11 @@ const INCIDENT_CARDS = {
   buttons.forEach(btn => {
     btn.addEventListener("click", event => {
       event.stopPropagation();
+      const incidentId = btn.dataset.incidentId;
       const index = btn.dataset.markerIndex;
-      if(openIndex === index){
+      const key = incidentId || index;
+
+      if(openKey === key){
         close();
         if(typeof window.nexusClearIncidentSelection === "function"){
           const panel = document.getElementById("incidents-panel");
@@ -753,17 +1013,33 @@ const INCIDENT_CARDS = {
         }
         return;
       }
-      if(typeof window.nexusOpenIncidentByMarker === "function"
-         && document.getElementById("incidents-panel")
-         && !document.getElementById("incidents-panel").hidden){
-        window.nexusOpenIncidentByMarker(index);
+
+      /* Siempre abre el módulo Incidentes en detalle (stream + info). */
+      if(typeof window.nexusOpenMode === "function"){
+        window.nexusOpenMode("incidents");
+      }
+      if(incidentId && typeof window.nexusOpenIncidentById === "function"){
+        window.nexusOpenIncidentById(incidentId);
         return;
       }
-      const info = INCIDENT_CARDS[index];
+      if(typeof window.nexusOpenIncidentByMarker === "function" && window.nexusOpenIncidentByMarker(index)){
+        return;
+      }
+
+      const info = INCIDENT_CARDS[index] || {};
       const lng = Number(btn.dataset.lng);
       const lat = Number(btn.dataset.lat);
-      if(!info || Number.isNaN(lng) || Number.isNaN(lat)) return;
-      show({ markerIndex:index, folio:info.id, desc:info.desc, cam:info.cam, lng, lat });
+      if(Number.isNaN(lng) || Number.isNaN(lat)) return;
+      show({
+        markerIndex: index,
+        incidentId,
+        folio: info.id,
+        desc: info.desc,
+        cam: info.cam,
+        stream: info.stream,
+        lng,
+        lat
+      });
     });
   });
 })();

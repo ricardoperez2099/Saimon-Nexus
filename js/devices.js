@@ -15,11 +15,10 @@
 
   const ICONS = {
     camara:'<path d="M3 7h11v10H3z"/><path d="m14 11 7-4v10l-7-4"/>',
-    unidad:'<path d="M5 17h14M6.5 17V9.5L8 6h8l1.5 3.5V17"/><circle cx="8" cy="19" r="1.4"/><circle cx="16" cy="19" r="1.4"/>',
-    robot:'<rect x="5" y="8" width="14" height="11" rx="2.5"/><path d="M12 4v4"/>',
-    dron:'<path d="M9 9h6v6H9z"/><path d="M9 9 5 5M15 9l4-4M9 15l-4 4M15 15l4 4"/>',
-    sensor:'<circle cx="12" cy="12" r="2.5"/><path d="M6.5 6.5a8 8 0 0 0 0 11M17.5 6.5a8 8 0 0 1 0 11"/>',
-    lpr:'<rect x="3" y="7" width="18" height="10" rx="2"/><path d="M7 11v2M11 11v2M15 11v2"/>'
+    dron:'<path d="M9 9h6v6H9z"/><path d="M9 9 5 5M15 9l4-4M9 15l-4 4M15 15l4 4"/><circle cx="5" cy="5" r="1.6"/><circle cx="19" cy="5" r="1.6"/><circle cx="5" cy="19" r="1.6"/><circle cx="19" cy="19" r="1.6"/>',
+    perro:'<path d="M4 14.5c0-1.8 1.2-3 3-3h1.2L9.5 9h3.2l1.4 2.5H16c1.4 0 2.5.9 2.5 2.3V17H4v-2.5Z"/><path d="M6 17v2.5M9 17v2.5M13 17v2.5M16.5 17v2.5"/><path d="M18.5 13.5 21 11.5"/><path d="M7.5 11.5V9.2"/>',
+    humanoide:'<circle cx="12" cy="5.5" r="2.4"/><path d="M8.5 21v-6.5a3.5 3.5 0 0 1 7 0V21"/><path d="M8.5 12.5h7"/><path d="M6.5 14.5 8.5 12.5M17.5 14.5 15.5 12.5"/>',
+    arco:'<path d="M3 19V9h18v10"/><path d="M3 9h18"/><path d="M7 9v5M12 9v5M17 9v5"/><path d="M5 19h3M16 19h3"/><rect x="8" y="11" width="8" height="2.5" rx=".4"/>'
   };
 
   const CRITICAL = new Set(["offline", "damaged", "degraded"]);
@@ -61,12 +60,14 @@
     if(state.type !== "all" && d.type !== state.type) return false;
     if(state.status === "critical"){
       if(!CRITICAL.has(d.status)) return false;
+    }else if(state.status === "deployed" || state.status === "hangar"){
+      if(d.type !== "dron" || d.ops !== state.status) return false;
     }else if(state.status !== "all" && d.status !== state.status){
       return false;
     }
     const q = state.query.trim().toLowerCase();
     if(!q) return true;
-    const hay = `${d.code} ${d.name} ${d.sector} ${DEVICE_TYPES[d.type]?.label || ""}`.toLowerCase();
+    const hay = `${d.code} ${d.name} ${d.sector} ${DEVICE_TYPES[d.type]?.label || ""} ${d.ops || ""}`.toLowerCase();
     return hay.includes(q);
   };
 
@@ -95,14 +96,25 @@
     return `<span class="status status--${meta.tone} device__status">${meta.label}</span>`;
   };
 
+  const opsChip = ops => {
+    const meta = typeof DRONE_OPS !== "undefined" ? DRONE_OPS[ops] : null;
+    if(!meta) return "";
+    return `<span class="status status--${meta.tone} device__status">${meta.label}</span>`;
+  };
+
   const deviceRow = d => {
     const pressed = d.id === state.selectedId;
     const typeLabel = DEVICE_TYPES[d.type]?.label || d.type;
     const icon = ICONS[d.type] || "";
+    const opsClass = d.type === "dron" && d.ops ? ` device--ops-${d.ops}` : "";
+    const primaryChip = d.type === "dron" && d.ops ? opsChip(d.ops) : statusChip(d.status);
+    const statusLabel = d.type === "dron" && d.ops
+      ? (DRONE_OPS[d.ops]?.label || d.ops)
+      : (DEVICE_STATUS[d.status]?.label || "");
     return `<li>`
-      + `<button type="button" class="device" data-device-id="${d.id}"`
+      + `<button type="button" class="device${opsClass}" data-device-id="${d.id}"`
       + ` aria-pressed="${pressed}"`
-      + ` aria-label="${d.code}, ${typeLabel}, ${DEVICE_STATUS[d.status]?.label || ""}">`
+      + ` aria-label="${d.code}, ${typeLabel}, ${statusLabel}">`
       + `<span class="device__icon" aria-hidden="true">`
       + `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${icon}</svg>`
       + `</span>`
@@ -110,7 +122,7 @@
       + `<span class="device__code">${d.code}</span>`
       + `<span class="device__name">${d.name} · ${typeLabel}</span>`
       + `</span>`
-      + statusChip(d.status)
+      + primaryChip
       + `</button></li>`;
   };
 

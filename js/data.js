@@ -122,13 +122,18 @@ const DEVICE_STATUS = {
   damaged:  { label:"Dañado",         tone:"danger" }
 };
 
+/* Operación de drones: verde en mapa = desplegado; gris = en hangar. */
+const DRONE_OPS = {
+  deployed: { label:"Desplegado", tone:"success" },
+  hangar:   { label:"En hangar",  tone:"muted" }
+};
+
 const DEVICE_TYPES = {
-  camara: { label:"Cámara",  short:"Cámara" },
-  unidad: { label:"Unidad",  short:"Unidad" },
-  robot:  { label:"Robot",   short:"Robot" },
-  dron:   { label:"Dron",    short:"Dron" },
-  sensor: { label:"Sensor",  short:"Sensor" },
-  lpr:    { label:"Lector LPR", short:"LPR" }
+  dron:      { label:"Dron",          short:"Dron" },
+  perro:     { label:"Perro robot",   short:"Perro" },
+  humanoide: { label:"Humanoide",     short:"Humanoide" },
+  camara:    { label:"Cámara",        short:"Cámara" },
+  arco:      { label:"Arco carretero", short:"Arco" }
 };
 
 const DEVICE_STATUS_RANK = { offline:0, damaged:1, degraded:2, online:3 };
@@ -140,27 +145,30 @@ const DEVICES = [
   { id:"cam-0522", code:"CAM-0522", name:"Av. Vallarta — cruce 8",       type:"camara", sector:"Sector 2 Norte", status:"offline",  markerKey:"camara-4" },
   { id:"cam-0603", code:"CAM-0603", name:"Sector 5 — torre sur",         type:"camara", sector:"Sector 5 Sur",   status:"damaged",  markerKey:"camara-5" },
 
-  { id:"u-zm12", code:"ZM-12", name:"Patrulla Sector 1",   type:"unidad", sector:"Sector 1 Norte", status:"online",   markerKey:"unidad-1" },
-  { id:"u-a07",  code:"A-07",  name:"Ambulancia avanzada", type:"unidad", sector:"Sector 1 Norte", status:"online",   markerKey:"unidad-2" },
-  { id:"u-zm21", code:"ZM-21", name:"Patrulla Sector 2",   type:"unidad", sector:"Sector 2 Norte", status:"degraded", markerKey:"unidad-3" },
-  { id:"u-b04",  code:"B-04",  name:"Bomberos — apoyo",    type:"unidad", sector:"Sector 5 Sur",   status:"online",   markerKey:"unidad-4" },
-  { id:"u-zm08", code:"ZM-08", name:"Patrulla Sur",        type:"unidad", sector:"Sector 5 Sur",   status:"offline",  markerKey:"unidad-5" },
+  { id:"dr-03", code:"DR-03", name:"Óptica incidente", type:"dron", sector:"Sector 1 Norte", status:"online",
+    ops:"deployed", model:"max", modelImg:"assets/dron-max.jpg", stream:"assets/cam-0412.png", markerKey:"dron-3" },
+  { id:"dr-07", code:"DR-07", name:"Patrulla aérea N", type:"dron", sector:"Sector 2 Norte", status:"online",
+    ops:"hangar", model:"compact", modelImg:"assets/dron-compact.jpg", markerKey:"dron-1" },
+  { id:"dr-11", code:"DR-11", name:"Cobertura Sur", type:"dron", sector:"Sector 5 Sur", status:"degraded",
+    ops:"hangar", model:"max", modelImg:"assets/dron-max.jpg", markerKey:"dron-2" },
 
-  { id:"dr-03", code:"DR-03", name:"Óptica incidente", type:"dron", sector:"Sector 1 Norte", status:"online",   markerKey:"dron-3" },
-  { id:"dr-07", code:"DR-07", name:"Patrulla aérea N", type:"dron", sector:"Sector 2 Norte", status:"online",   markerKey:"dron-1" },
-  { id:"dr-11", code:"DR-11", name:"Cobertura Sur",    type:"dron", sector:"Sector 5 Sur",   status:"degraded", markerKey:"dron-2" },
+  { id:"pr-zm14", code:"ZM-14", name:"Perro robot — Sector 1", type:"perro", sector:"Sector 1 Norte", status:"online",  markerKey:"perro-1" },
+  { id:"pr-zm19", code:"ZM-19", name:"Perro robot — Sector 2", type:"perro", sector:"Sector 2 Norte", status:"damaged", markerKey:"perro-2" },
+  { id:"pr-zm08", code:"ZM-08", name:"Perro robot — Sur",      type:"perro", sector:"Sector 5 Sur",   status:"online",  markerKey:"perro-3" },
 
-  { id:"rb-zm14", code:"ZM-14", name:"Unidad robótica", type:"robot", sector:"Sector 1 Norte", status:"online",  markerKey:"robot-1" },
-  { id:"rb-zm19", code:"ZM-19", name:"Unidad robótica", type:"robot", sector:"Sector 2 Norte", status:"damaged", markerKey:"robot-2" },
+  { id:"hu-a07",  code:"HU-07", name:"Humanoide apoyo médico", type:"humanoide", sector:"Sector 1 Norte", status:"online",
+    modelImg:"assets/humanoide.jpg", markerKey:"humanoide-1" },
+  { id:"hu-21",   code:"HU-21", name:"Humanoide patrulla N",   type:"humanoide", sector:"Sector 2 Norte", status:"degraded",
+    modelImg:"assets/humanoide.jpg", markerKey:"humanoide-2" },
+  { id:"hu-05",   code:"HU-05", name:"Humanoide disuasión S",  type:"humanoide", sector:"Sector 5 Sur",   status:"offline",
+    modelImg:"assets/humanoide.jpg", markerKey:"humanoide-3" },
 
-  { id:"sn-01", code:"SN-01", name:"Acústica — nodo A", type:"sensor", sector:"Sector 1 Norte", status:"online",   markerKey:"sensor-1" },
-  { id:"sn-04", code:"SN-04", name:"Calidad de aire",   type:"sensor", sector:"Sector 2 Norte", status:"online",   markerKey:"sensor-2" },
-  { id:"sn-09", code:"SN-09", name:"Inundación — S5",   type:"sensor", sector:"Sector 5 Sur",   status:"offline",  markerKey:"sensor-3" },
-  { id:"sn-12", code:"SN-12", name:"Vibración — puente", type:"sensor", sector:"Sector 5 Sur",  status:"degraded", markerKey:"sensor-4" },
-
-  { id:"lpr-02", code:"LPR-02", name:"Acceso Norte",  type:"lpr", sector:"Sector 1 Norte", status:"online",  markerKey:"lpr-1" },
-  { id:"lpr-05", code:"LPR-05", name:"Peatonal Centro", type:"lpr", sector:"Sector 2 Norte", status:"online", markerKey:"lpr-2" },
-  { id:"lpr-08", code:"LPR-08", name:"Salida Sur",    type:"lpr", sector:"Sector 5 Sur",   status:"offline", markerKey:"lpr-3" }
+  { id:"arco-02", code:"ARC-02", name:"Arco Acceso Norte",  type:"arco", sector:"Sector 1 Norte", status:"online",
+    stream:"assets/arco-01.png", markerKey:"arco-1" },
+  { id:"arco-05", code:"ARC-05", name:"Arco Periférico",    type:"arco", sector:"Sector 2 Norte", status:"online",
+    stream:"assets/arco-02.png", markerKey:"arco-2" },
+  { id:"arco-08", code:"ARC-08", name:"Arco Salida Sur",    type:"arco", sector:"Sector 5 Sur",   status:"offline",
+    stream:"assets/arco-01.png", markerKey:"arco-3" }
 ];
 
 /* ============================================================
@@ -370,7 +378,7 @@ const PATROL_ROUTES = [
 
 /* ============================================================
    INCIDENTES VIVOS — modo Incidentes (cola operativa)
-   markerIndex alinea con MARKERS de tipo incidente en map.js.
+   markerIndex / lng / lat: un marcador por incidente en el mapa.
    ============================================================ */
 const INCIDENT_PRIORITY = {
   high:   { label:"Alta",  tone:"danger" },
@@ -399,16 +407,17 @@ const INCIDENTS = [
     address:"Av. Américas 1420",
     elapsed:"06:12",
     cam:"CAM-0412",
+    stream:"assets/cam-0412.png",
     description:"Colisión entre vehículo particular y motocicleta. Dos adultos involucrados; vía parcialmente obstruida. Confirmado por 4 cámaras y despacho autónomo en curso.",
     units:[
-      { code:"ZM-14", kind:"Unidad robótica", eta:"3 min" },
-      { code:"A-07", kind:"Ambulancia", eta:"5 min" },
+      { code:"ZM-14", kind:"Perro robot", eta:"3 min" },
+      { code:"HU-07", kind:"Humanoide", eta:"5 min" },
       { code:"DR-03", kind:"Dron de vigilancia", eta:"Sobrevolando" }
     ],
     history:[
       { t:"11:08", text:"Clasificado como prioridad alta por Simon Core" },
       { t:"11:11", text:"Validación en cámaras CAM-0412 / CAM-0418" },
-      { t:"11:12", text:"Despacho de ZM-14, A-07 y DR-03" },
+      { t:"11:12", text:"Despacho de ZM-14, HU-07 y DR-03" },
       { t:"11:14", text:"DR-03 en estación sobre el punto" }
     ],
     markerIndex:"1",
@@ -425,9 +434,10 @@ const INCIDENTS = [
     address:"Av. López Mateos · cruce 8",
     elapsed:"14:40",
     cam:"CAM-0501",
+    stream:"assets/cam-0501.jpg",
     description:"Reporte de alteración en vía pública. Dos unidades en ruta. Sin lesionados reportados hasta el momento.",
     units:[
-      { code:"ZM-21", kind:"Patrulla", eta:"8 min" }
+      { code:"ZM-21", kind:"Perro robot", eta:"8 min" }
     ],
     history:[
       { t:"11:00", text:"Ingreso por llamada telefónica" },
@@ -448,6 +458,7 @@ const INCIDENTS = [
     address:"Corredor Sur · torre 3",
     elapsed:"02:18",
     cam:"CAM-0603",
+    stream:"assets/cam-0603.jpg",
     description:"Accidente de motocicleta con posible lesionado. Pendiente de despacho; cámara CAM-0603 con señal degradada.",
     units:[],
     history:[
@@ -468,7 +479,8 @@ const INCIDENTS = [
     address:"Periférico Norte · nodo 12",
     elapsed:"22:05",
     cam:"CAM-0522",
-    description:"Vehículo detenido en carril central. Vialidad en ruta. Impacto bajo en flujo.",
+    stream:"assets/cam-0522.jpg",
+    description:"Derrumbe parcial con vía bloqueada. Maquinaria y apoyo vial en sitio. Flujo detenido en ambos sentidos.",
     units:[
       { code:"B-04", kind:"Apoyo vial", eta:"12 min" }
     ],
@@ -482,47 +494,27 @@ const INCIDENTS = [
     lat:20.6601
   },
   {
-    id:"inc-0410",
-    folio:"4300090410",
-    type:"Falsos positivos de cámara",
-    priority:"low",
-    status:"closed",
-    sector:"Sector 1 Norte",
-    address:"Plaza del Sol — acceso N",
-    elapsed:"00:45",
-    cam:"CAM-0418",
-    description:"Tres alertas descartadas por falso positivo. Cerrado por Simon Core sin despacho.",
-    units:[],
-    history:[
-      { t:"10:30", text:"Ráfaga de alertas en CAM-0418" },
-      { t:"10:32", text:"Descartadas por Vision (falso positivo)" },
-      { t:"10:33", text:"Incidente cerrado" }
-    ],
-    markerIndex:null,
-    lng:null,
-    lat:null
-  },
-  {
     id:"inc-0333",
     folio:"4300090333",
-    type:"Abandono de persona",
+    type:"Vandalismo en vía pública",
     priority:"medium",
     status:"attending",
     sector:"Sector 5 Sur",
-    address:"Salida Sur · LPR-08",
+    address:"Salida Sur · ARC-08",
     elapsed:"09:50",
-    cam:"LPR-08",
-    description:"Persona en situación de calle reportada cerca de salida Sur. Unidad en sitio realizando valoración.",
+    cam:"ARC-08",
+    stream:"assets/cam-lpr-08.jpg",
+    description:"Grupo realizando grafiti en muro peatonal. Unidad en sitio realizando valoración y disuasión.",
     units:[
-      { code:"ZM-08", kind:"Patrulla", eta:"En sitio" }
+      { code:"ZM-08", kind:"Perro robot", eta:"En sitio" }
     ],
     history:[
       { t:"11:05", text:"Ingreso por botón de pánico peatonal" },
-      { t:"11:08", text:"ZM-08 despachada" },
+      { t:"11:08", text:"ZM-08 despachada por vandalismo" },
       { t:"11:15", text:"Unidad en sitio" }
     ],
-    markerIndex:null,
-    lng:-103.3552,
-    lat:20.6534
+    markerIndex:"5",
+    lng:-103.3546,
+    lat:20.6540
   }
 ];

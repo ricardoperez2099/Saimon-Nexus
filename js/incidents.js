@@ -11,6 +11,7 @@
   const detailEl = document.getElementById("incidents-detail");
   const detailCard = document.getElementById("incidents-detail-card");
   const detailTitle = document.getElementById("incidents-detail-title");
+  const detailPriority = document.getElementById("incidents-detail-priority");
   const backBtn = document.getElementById("incidents-detail-back");
   const searchEl = document.getElementById("incidents-search");
   const priorityRow = document.getElementById("incidents-filter-priority");
@@ -65,8 +66,7 @@
     const counts = {
       open: live.filter(i => i.status === "open").length,
       dispatched: live.filter(i => i.status === "dispatched").length,
-      attending: live.filter(i => i.status === "attending").length,
-      high: live.filter(i => i.priority === "high").length
+      attending: live.filter(i => i.status === "attending").length
     };
     summaryEl.innerHTML =
       `<div class="fleet__stat fleet__stat--offline" role="listitem">`
@@ -77,10 +77,7 @@
       + `<span class="fleet__stat-label">Despachados</span></div>`
       + `<div class="fleet__stat fleet__stat--online" role="listitem">`
       + `<span class="fleet__stat-value">${counts.attending}</span>`
-      + `<span class="fleet__stat-label">En atención</span></div>`
-      + `<div class="fleet__pct" role="listitem">`
-      + `<span class="fleet__stat-value">${counts.high}</span>`
-      + `<span class="fleet__stat-label">Prioridad alta</span></div>`;
+      + `<span class="fleet__stat-label">En atención</span></div>`;
   };
 
   const incidentRow = inc => {
@@ -125,51 +122,181 @@
     if(detailCard) detailCard.hidden = false;
   };
 
+  const UNIT_VISUAL = {
+    "Perro robot":{
+      photo:"assets/saimon-robot.jpg",
+      stream:"assets/cam-0603.jpg",
+      camSuffix:"óptica"
+    },
+    "Humanoide":{
+      photo:"assets/humanoide.jpg",
+      stream:"assets/humanoide.jpg",
+      camSuffix:"casco"
+    },
+    "Dron de vigilancia":{
+      photo:"assets/dron-max.jpg",
+      stream:"assets/cam-0412.png",
+      camSuffix:"gimbal"
+    },
+    "Apoyo vial":{
+      photo:"assets/saimon-robot.jpg",
+      stream:"assets/arco-01.png",
+      camSuffix:"móvil"
+    }
+  };
+
+  const visualForUnit = u => {
+    const base = UNIT_VISUAL[u.kind] || {
+      photo:"assets/saimon-robot.jpg",
+      stream:null,
+      camSuffix:"cam"
+    };
+    return {
+      photo: u.photo || base.photo,
+      stream: u.stream || base.stream,
+      camLabel: u.cam || `${u.code} · ${base.camSuffix}`
+    };
+  };
+
+  const HIST_TONES = ["ok", "info", "task", "warn"];
+
+  const buildFeeds = inc => {
+    const feeds = [];
+    if(inc.stream || inc.cam){
+      feeds.push({
+        id:"scene",
+        label: inc.cam || "Escena",
+        src: inc.stream || "",
+        live: Boolean(inc.stream)
+      });
+    }
+    (inc.units || []).forEach(u => {
+      const v = visualForUnit(u);
+      if(!v.stream) return;
+      feeds.push({
+        id: u.code,
+        label: v.camLabel,
+        src: v.stream,
+        live: true
+      });
+    });
+    return feeds;
+  };
+
+  const bindStreamCarousel = (root, feeds) => {
+    if(!root || !feeds.length) return;
+    const img = root.querySelector(".incident-stream__photo");
+    const live = root.querySelector(".incident-stream__live");
+    const tabs = root.querySelectorAll("[data-feed-i]");
+    const setFeed = i => {
+      const feed = feeds[i];
+      if(!feed) return;
+      if(img){
+        if(feed.src){
+          img.hidden = false;
+          img.src = feed.src;
+        }else{
+          img.hidden = true;
+        }
+      }
+      if(live){
+        live.innerHTML = feed.live
+          ? `<i></i>EN VIVO · ${feed.label}`
+          : feed.label;
+      }
+      tabs.forEach(tab => {
+        const on = Number(tab.dataset.feedI) === i;
+        tab.classList.toggle("is-active", on);
+        tab.setAttribute("aria-selected", String(on));
+      });
+    };
+    tabs.forEach(tab => {
+      tab.addEventListener("click", () => setFeed(Number(tab.dataset.feedI)));
+    });
+    setFeed(0);
+  };
+
   const renderDetail = inc => {
     if(!detailEl || !detailCard) return;
     if(!inc){
       detailEl.innerHTML = "";
+      if(detailTitle) detailTitle.textContent = "Detalle";
+      if(detailPriority){
+        detailPriority.innerHTML = "";
+        detailPriority.hidden = true;
+      }
       showListView();
       return;
     }
 
     showDetailView();
-    if(detailTitle) detailTitle.textContent = `Incidente ${inc.folio}`;
-
     const pr = INCIDENT_PRIORITY[inc.priority];
     const st = INCIDENT_STATUS[inc.status];
+    if(detailTitle) detailTitle.textContent = `Incidente ${inc.folio}`;
+    if(detailPriority){
+      detailPriority.innerHTML = chip(pr.label, pr.tone);
+      detailPriority.hidden = false;
+    }
 
-    const units = (inc.units || []).length
-      ? (inc.units || []).map(u =>
-        `<li class="incident-unit">`
-        + `<span class="incident-unit__code">${u.code}</span>`
-        + `<span class="incident-unit__kind">${u.kind}</span>`
-        + `<span class="incident-unit__eta">${u.eta}</span>`
-        + `</li>`
-      ).join("")
+    const unitList = inc.units || [];
+    const units = unitList.length
+      ? unitList.map(u => {
+        const v = visualForUnit(u);
+        return `<li class="incident-unit">`
+          + `<img class="incident-unit__photo" src="${v.photo}" alt="" decoding="async">`
+          + `<span class="incident-unit__meta">`
+          + `<span class="incident-unit__code">${u.code}</span>`
+          + `<span class="incident-unit__kind">${u.kind}</span>`
+          + `</span>`
+          + `<span class="incident-unit__eta">${u.eta}</span>`
+          + `</li>`;
+      }).join("")
       : `<li class="incident-unit incident-unit--empty">Sin unidades asignadas</li>`;
 
-    const history = (inc.history || []).map(h =>
-      `<li class="incident-hist__item">`
-      + `<span class="incident-hist__t">${h.t}</span>`
-      + `<span class="incident-hist__text">${h.text}</span>`
-      + `</li>`
-    ).join("");
+    const histItems = inc.history || [];
+    const history = histItems.map((h, i) => {
+      const last = i === histItems.length - 1;
+      const tone = last ? "live" : HIST_TONES[i % HIST_TONES.length];
+      return `<li class="incident-hist__item incident-hist__item--${tone}">`
+        + `<span class="incident-hist__dot" aria-hidden="true">${last ? "<i></i>" : ""}</span>`
+        + `<span class="incident-hist__body">`
+        + `<span class="incident-hist__t">${h.t}</span>`
+        + `<span class="incident-hist__text">${h.text}</span>`
+        + `</span></li>`;
+    }).join("");
+
+    const feeds = buildFeeds(inc);
+    const tabs = feeds.length > 1
+      ? `<div class="incident-stream__tabs" role="tablist" aria-label="Cámaras del incidente">`
+        + feeds.map((f, i) =>
+          `<button type="button" class="incident-stream__tab${i === 0 ? " is-active" : ""}"`
+          + ` role="tab" data-feed-i="${i}" aria-selected="${i === 0}">${f.label}</button>`
+        ).join("")
+        + `</div>`
+      : "";
+
+    const first = feeds[0];
+    const streamFrame = first
+      ? `<div class="incident-stream__frame">`
+        + (first.src
+          ? `<img class="incident-stream__photo" src="${first.src}" alt="" width="640" height="360" decoding="async">`
+          : `<span class="incident-stream__placeholder">Señal · ${first.label}</span>`)
+        + `<span class="incident-stream__live"><i></i>EN VIVO · ${first.label}</span>`
+        + `</div>`
+      : `<div class="incident-stream__frame">`
+        + `<span class="incident-stream__placeholder">Sin señal</span>`
+        + `</div>`;
 
     detailEl.innerHTML =
       `<div class="incident-detail">`
       + `<div class="incident-stream" aria-label="Stream de cámara">`
-      + `<div class="incident-stream__frame">`
-      + `<span class="incident-stream__live"><i></i>EN VIVO · ${inc.cam}</span>`
-      + `<span class="incident-stream__placeholder">Señal · ${inc.cam}</span>`
-      + `</div></div>`
+      + streamFrame
+      + tabs
+      + `</div>`
+      + `<p class="incident-detail__type">${inc.type}</p>`
       + `<div class="route-detail__grid">`
-      + `<div class="route-detail__field"><span class="route-detail__label">Prioridad</span>`
-      + `<span class="route-detail__value">${chip(pr.label, pr.tone)}</span></div>`
       + `<div class="route-detail__field"><span class="route-detail__label">Estatus</span>`
       + `<span class="route-detail__value">${chip(st.label, st.tone)}</span></div>`
-      + `<div class="route-detail__field"><span class="route-detail__label">Tipo</span>`
-      + `<span class="route-detail__value">${inc.type}</span></div>`
       + `<div class="route-detail__field"><span class="route-detail__label">Tiempo</span>`
       + `<span class="route-detail__value">${inc.elapsed}</span></div>`
       + `<div class="route-detail__field route-detail__span"><span class="route-detail__label">Ubicación</span>`
@@ -185,33 +312,45 @@
       + `<h3 class="incident-block__title">Historial</h3>`
       + `<ol class="incident-hist">${history}</ol>`
       + `</div></div>`;
+
+    bindStreamCarousel(detailEl.querySelector(".incident-stream"), feeds);
   };
 
   const syncMap = inc => {
     if(typeof window.nexusFocusDeviceMarker === "function"){
       window.nexusFocusDeviceMarker(null);
     }
-    if(typeof window.nexusFocusUnitMarker === "function"){
+    if(typeof window.nexusClearIncidentAssignedUnits === "function"){
+      window.nexusClearIncidentAssignedUnits();
+    }else if(typeof window.nexusFocusUnitMarker === "function"){
       window.nexusFocusUnitMarker(null);
-    }
-    if(typeof window.nexusClearMapRoute === "function"){
+    }else if(typeof window.nexusClearMapRoute === "function"){
       window.nexusClearMapRoute();
     }
     if(!inc){
       if(typeof window.nexusClearIncidentPopcard === "function"){
         window.nexusClearIncidentPopcard();
+      }else if(typeof window.nexusFocusIncidentMarker === "function"){
+        window.nexusFocusIncidentMarker(null);
       }
       return;
     }
     if(typeof window.nexusShowIncidentPopcard === "function"){
       window.nexusShowIncidentPopcard({
         markerIndex: inc.markerIndex,
+        incidentId: inc.id,
         folio: inc.folio,
         desc: `${inc.type} · ${inc.address}`,
         cam: inc.cam,
+        stream: inc.stream,
         lng: inc.lng,
         lat: inc.lat
       });
+    }else if(typeof window.nexusFocusIncidentMarker === "function"){
+      window.nexusFocusIncidentMarker(inc.id);
+    }
+    if(typeof window.nexusShowIncidentAssignedUnits === "function"){
+      window.nexusShowIncidentAssignedUnits(inc);
     }
   };
 
@@ -264,6 +403,7 @@
   showListView();
 
   window.nexusClearIncidentSelection = goBack;
+  window.nexusOpenIncidentById = openIncident;
   window.nexusOpenIncidentByMarker = markerIndex => {
     const inc = INCIDENTS.find(i => i.markerIndex === String(markerIndex));
     if(!inc) return false;

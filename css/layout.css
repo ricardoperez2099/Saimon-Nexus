@@ -471,10 +471,21 @@
   background:var(--nx-surface-map);box-shadow:var(--shadow-md);
 }
 
-/* El incidente es el más crítico: relleno rojo sólido, icono blanco. */
-#map[data-map-style="day"] .marker--incidente{
+/* Incidente: relleno sólido por prioridad (alta / media / baja). */
+#map[data-map-style="day"] .marker--incidente,
+#map[data-map-style="day"] .marker--incidente.marker--prio-high{
   background:var(--accent-red);color:var(--text-primary);
   box-shadow:0 0 0 2px var(--nx-surface-map),0 0 1.25rem rgba(var(--accent-red-rgb),.55);
+}
+
+#map[data-map-style="day"] .marker--incidente.marker--prio-medium{
+  background:var(--accent-orange);color:var(--text-primary);
+  box-shadow:0 0 0 2px var(--nx-surface-map),0 0 1.25rem rgba(var(--accent-orange-rgb),.55);
+}
+
+#map[data-map-style="day"] .marker--incidente.marker--prio-low{
+  background:var(--accent-green);color:var(--text-primary);
+  box-shadow:0 0 0 2px var(--nx-surface-map),0 0 1.25rem rgba(var(--accent-green-rgb),.55);
 }
 
 /* ============================================================
@@ -552,8 +563,14 @@
 
 .ai-card--routes-detail .ai-card__title,
 .ai-card--incidents-detail .ai-card__title{
-  flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
+
+.incidents-detail__identity{
+  display:flex;align-items:center;gap:var(--spacing-sm);flex:1;min-width:0;
+}
+
+.incidents-detail__prio{flex-shrink:0;display:inline-flex;align-items:center}
 
 .ai-card__head{
   display:flex;align-items:center;gap:var(--spacing-sm);

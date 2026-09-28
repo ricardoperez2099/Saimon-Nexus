@@ -56,7 +56,7 @@
   --border-color-light:#4b5563;
   --border-input:#ffffff30;
   --nx-border-soft:rgba(255,255,255,.07);
-  --nx-border-neutral:#8b93a7;   /* marcador sin acento propio (LPR) */
+  --nx-border-neutral:#8b93a7;   /* marcador / arco sin acento fuerte */
 
   /* — Superposiciones sobre el mapa — */
   --nx-glass:rgba(21,36,62,.88);      /* control flotante */
