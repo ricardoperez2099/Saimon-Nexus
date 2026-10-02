@@ -123,7 +123,7 @@
     <div class="layers map__inset-left map__inset-right" role="group" aria-label="Capas del mapa">
       <button class="layer" type="button" aria-pressed="true" data-layer="incidente">
         <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 4 2.5 20h19L12 4Z"/><path d="M12 10v4M12 17h.01"/></svg>
-        Incidentes <span class="layer__count">5</span>
+        Incidentes <span class="layer__count">6</span>
       </button>
       <button class="layer" type="button" aria-pressed="true" data-layer="dron">
         <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 9h6v6H9z"/><path d="M9 9 5 5M15 9l4-4M9 15l-4 4M15 15l4 4"/><circle cx="5" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/></svg>
@@ -183,6 +183,19 @@
         <i class="agent-orb__pip" aria-hidden="true"></i>
         <span class="agent-orb__name">Saimon</span>
       </span>
+      <button type="button" class="demo-alert-cta" id="demo-alert-cta"
+              aria-label="Simular alerta entrante" title="Simular alerta">
+        <svg class="demo-alert-cta__icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 9a6 6 0 0 1 12 0c0 7 3 7 3 9H3c0-2 3-2 3-9Z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg>
+        <i class="demo-alert-cta__dot" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <div class="demo-toast" id="demo-toast" hidden role="status" aria-live="assertive">
+      <span class="demo-toast__pip" aria-hidden="true"></span>
+      <div class="demo-toast__body">
+        <strong class="demo-toast__title">Nueva alerta entrante</strong>
+        <span class="demo-toast__meta">Sector 1 Norte · Accidente automovilístico · prioridad alta</span>
+      </div>
     </div>
 
     <!-- Muelle inferior derecho: card de robot + controles (sin solaparse). -->
@@ -242,7 +255,7 @@
           <button class="autonomy__btn" type="button">Pausar autonomía</button>
         </div>
         <div class="ai-card__body">
-          <div class="log">
+          <div class="log" id="vigia-log">
             <div class="log__item">
               <span class="log__dot log__dot--task"></span>
               <p class="log__text">Evaluó prioridades del Sector 1 Norte · 14 abiertos</p>
@@ -260,7 +273,7 @@
             </div>
             <div class="log__item">
               <span class="log__dot log__dot--ok"></span>
-              <p class="log__text">Despachó <b>ZM-14</b>, <b>A-07</b> y <b>DR-03</b></p>
+              <p class="log__text">Despachó <b>ZM-14</b>, <b>HU-07</b> y <b>DR-03</b></p>
               <span class="log__time">11:12</span>
             </div>
             <div class="log__item">
@@ -270,9 +283,9 @@
             </div>
           </div>
         </div>
-        <div class="ai-live" role="status" aria-live="polite">
+        <div class="ai-live" id="vigia-live" role="status" aria-live="polite">
           <span class="ai-live__pip" aria-hidden="true"></span>
-          <p class="ai-live__text">Siguiendo unidades en ruta · Incidente <b>4300090172</b></p>
+          <p class="ai-live__text" id="vigia-live-text">Siguiendo unidades en ruta · Incidente <b>4300090172</b></p>
         </div>
       </section>
 
@@ -283,66 +296,66 @@
           <button class="autonomy__btn" type="button">Tomar control</button>
         </div>
 
-        <div class="case">
+        <div class="case" id="vigia-case">
           <div class="case__head">
             <div class="case__icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4 2.5 20h19L12 4Z"/><path d="M12 10v4M12 17h.01"/></svg></div>
             <div>
-              <div class="case__id">Incidente 4300090172</div>
-              <p class="case__desc">Colisión vehicular · Av. Américas</p>
+              <div class="case__id" id="vigia-case-id">Incidente 4300090172</div>
+              <p class="case__desc" id="vigia-case-desc">Colisión vehicular · Av. Américas</p>
             </div>
             <div class="case__timer">
-              <div class="case__elapsed">06:12</div>
+              <div class="case__elapsed" id="vigia-case-elapsed">06:12</div>
               <div class="case__elapsed-l">transcurrido</div>
             </div>
           </div>
 
-          <div class="chain">
-            <div class="chain__step chain__step--done">
+          <div class="chain" id="vigia-chain">
+            <div class="chain__step chain__step--done" data-chain-step="0">
               <div class="chain__dot"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><path d="m5 12 5 5 9-9"/></svg></div>
               <div class="chain__label">Ubicación validada<span class="chain__time">+0:04</span></div>
             </div>
-            <div class="chain__step chain__step--done">
+            <div class="chain__step chain__step--done" data-chain-step="1">
               <div class="chain__dot"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><path d="m5 12 5 5 9-9"/></svg></div>
               <div class="chain__label">Colisión confirmada en 4 cámaras<span class="chain__time">+0:11</span></div>
             </div>
-            <div class="chain__step chain__step--done">
+            <div class="chain__step chain__step--done" data-chain-step="2">
               <div class="chain__dot"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><path d="m5 12 5 5 9-9"/></svg></div>
               <div class="chain__label">Ruta calculada, tráfico fluido<span class="chain__time">+0:19</span></div>
             </div>
-            <div class="chain__step chain__step--done">
+            <div class="chain__step chain__step--done" data-chain-step="3">
               <div class="chain__dot"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><path d="m5 12 5 5 9-9"/></svg></div>
               <div class="chain__label">Recursos despachados<span class="chain__time">+0:23</span></div>
             </div>
-            <div class="chain__step chain__step--live">
+            <div class="chain__step chain__step--live" data-chain-step="4">
               <div class="chain__dot"><i></i></div>
               <div class="chain__label">Siguiendo unidades en ruta</div>
             </div>
-            <div class="chain__step chain__step--wait">
+            <div class="chain__step chain__step--wait" data-chain-step="5">
               <div class="chain__dot"></div>
               <div class="chain__label">Cierre y parte automático</div>
             </div>
           </div>
 
-          <div class="disp">
+          <div class="disp" id="vigia-disp">
             <div class="disp__title">
               <span>Recursos despachados</span>
-              <span class="status status--success">Ejecutado</span>
+              <span class="status status--success" id="vigia-disp-status">Ejecutado</span>
             </div>
-            <button class="unit unit--robot" type="button" data-unit="robot" aria-pressed="false">
+            <button class="unit unit--robot" type="button" data-unit="demoRobot" aria-pressed="false">
               <span class="unit__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 14.5c0-1.8 1.2-3 3-3h1.2L9.5 9h3.2l1.4 2.5H16c1.4 0 2.5.9 2.5 2.3V17H4v-2.5Z"/><path d="M6 17v2.5M9 17v2.5M13 17v2.5M16.5 17v2.5"/><path d="M18.5 13.5 21 11.5"/><path d="M7.5 11.5V9.2"/></svg></span>
-              <span class="unit__code">ZM-14</span>
+              <span class="unit__code">ZM-22</span>
               <span class="unit__kind">Perro robot</span>
-              <span class="unit__eta">llega en <b>3 min</b></span>
+              <span class="unit__eta">llega en <b>4 min</b></span>
             </button>
-            <button class="unit unit--amb" type="button" data-unit="amb" aria-pressed="false">
+            <button class="unit unit--amb" type="button" data-unit="demoAmb" aria-pressed="false">
               <span class="unit__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="5.5" r="2.4"/><path d="M8.5 21v-6.5a3.5 3.5 0 0 1 7 0V21"/><path d="M8.5 12.5h7"/><path d="M6.5 14.5 8.5 12.5M17.5 14.5 15.5 12.5"/></svg></span>
-              <span class="unit__code">HU-07</span>
+              <span class="unit__code">HU-12</span>
               <span class="unit__kind">Humanoide</span>
-              <span class="unit__eta">llega en <b>5 min</b></span>
+              <span class="unit__eta">llega en <b>6 min</b></span>
             </button>
-            <button class="unit unit--drone" type="button" data-unit="drone" aria-pressed="false">
+            <button class="unit unit--drone" type="button" data-unit="demoDrone" aria-pressed="false">
               <span class="unit__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 9h6v6H9z"/><path d="M9 9 5 5M15 9l4-4M9 15l-4 4M15 15l4 4"/><circle cx="5" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/></svg></span>
-              <span class="unit__code">DR-03</span>
+              <span class="unit__code">DR-09</span>
               <span class="unit__kind">Dron de vigilancia</span>
               <span class="unit__eta"><b>Sobrevolando</b></span>
             </button>
@@ -547,5 +560,6 @@
 <script src="js/devices.js"></script>
 <script src="js/routes.js"></script>
 <script src="js/incidents.js"></script>
+<script src="js/demo-alert.js"></script>
 </body>
 </html>

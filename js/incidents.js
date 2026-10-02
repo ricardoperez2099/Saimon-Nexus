@@ -137,9 +137,10 @@
   const visualForUnit = u => {
     const meta = UNIT_VISUAL[u.kind] || { pick: pickGround, camSuffix:"cam" };
     const clip = meta.pick();
+    const media = u.stream || u.photo || clip;
     return {
-      photo: u.photo || clip,
-      stream: u.stream || clip,
+      photo: u.photo || media,
+      stream: media,
       camLabel: u.cam || `${u.code} · ${meta.camSuffix}`
     };
   };

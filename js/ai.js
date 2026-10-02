@@ -190,6 +190,39 @@
         ["Altitud","80 m AGL","Live"],
         ["Estado","En misión","Activo"]
       ]
+    },
+    demoRobot:{
+      title:"ZM-22 · Perro robot",
+      media:"live",
+      stream:(typeof DEMO_ACCIDENT_STREAMS !== "undefined" && DEMO_ACCIDENT_STREAMS.robot) || "assets/accidente-perro.mp4",
+      cam:"ZM-22",
+      rows:[
+        ["En ruta","ETA 4 min","Accidente"],
+        ["Prioridad","Alta","Despacho"],
+        ["Estado","Asignada","Activo"]
+      ]
+    },
+    demoAmb:{
+      title:"HU-12 · Humanoide",
+      media:"live",
+      stream:(typeof DEMO_ACCIDENT_STREAMS !== "undefined" && DEMO_ACCIDENT_STREAMS.amb) || "assets/accidente-humanoide.mp4",
+      cam:"HU-12",
+      rows:[
+        ["En ruta","ETA 6 min","Apoyo"],
+        ["Misión","Contención","Listo"],
+        ["Estado","Asignada","Activo"]
+      ]
+    },
+    demoDrone:{
+      title:"DR-09 · Dron de vigilancia",
+      media:"live",
+      stream:(typeof DEMO_ACCIDENT_STREAMS !== "undefined" && DEMO_ACCIDENT_STREAMS.drone) || "assets/accidente-dron.mp4",
+      cam:"DR-09",
+      rows:[
+        ["Operación","Desplegado","Óptica"],
+        ["Altitud","80 m AGL","Live"],
+        ["Estado","En misión","Activo"]
+      ]
     }
   };
 
@@ -266,15 +299,21 @@
     }
   };
 
-  const openUnit = id => {
-    const profile = UNIT_PROFILES[id];
-    if(!profile) return false;
+  const openUnit = (id, opts) => {
+    const base = UNIT_PROFILES[id];
+    if(!base) return false;
+    const profile = Object.assign({}, base);
+    const demoStream = window.nexusDemoUnitStreams && window.nexusDemoUnitStreams[id];
+    if(opts && opts.stream) profile.stream = opts.stream;
+    else if(demoStream) profile.stream = demoStream;
+    if(opts && opts.cam) profile.cam = opts.cam;
+    if(opts && opts.rows) profile.rows = opts.rows;
     if(typeof window.nexusFocusDeviceMarker === "function"){
       window.nexusFocusDeviceMarker(null);
     }
     applyProfile(profile, "unit:" + id);
     setPressed(id);
-    if(typeof window.nexusFocusUnitMarker === "function"){
+    if(!(opts && opts.skipMapFocus) && typeof window.nexusFocusUnitMarker === "function"){
       window.nexusFocusUnitMarker(id);
     }
     return true;

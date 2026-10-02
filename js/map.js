@@ -217,10 +217,16 @@ const MARKERS=[
   ["camara",-103.3457,20.6559],
   ["dron",-103.3592,20.6630],["dron",-103.3430,20.6613],
   ["dron",-103.3510,20.6543],
+  /* Dron del guion accidente (inc-0410) — no reutiliza DR-03 del caso Américas. */
+  ["dron",-103.3475,20.6595],
   ["perro",-103.3536,20.6574],["perro",-103.3429,20.6643],
   ["perro",-103.3552,20.6534],
+  /* Perro del guion accidente */
+  ["perro",-103.3498,20.6602],
   ["humanoide",-103.3474,20.6588],["humanoide",-103.3601,20.6683],
   ["humanoide",-103.3434,20.6538],
+  /* Humanoide del guion accidente */
+  ["humanoide",-103.3462,20.6610],
   ["arco",-103.3466,20.6635],["arco",-103.3424,20.6675],
   ["arco",-103.3482,20.6605]
 ];
@@ -244,17 +250,21 @@ function crearElementoDeMarcador(type, index){
   return anchor;
 }
 
-/* Incidente principal del caso demo — referencia para distancias. */
+/* Incidente Américas (0172) y accidente ARC-02 (0410) — destinos de ruta. */
 const INCIDENT_LL = [-103.3529, 20.6619];
+const DEMO_ACCIDENT_LL = [-103.3480, 20.6628];
 
-/* Recursos del caso demo → marcador concreto (cerca del incidente). */
+/* Recursos → marcador. robot/amb/drone = caso 0172; demo* = caso 0410. */
 const UNIT_MARKER = {
   robot:{ type:"perro", index:1, callout:"ZM-14", lng:-103.3536, lat:20.6574 },
   amb:{ type:"humanoide", index:1, callout:"HU-07", lng:-103.3474, lat:20.6588 },
-  drone:{ type:"dron", index:3, callout:"DR-03", lng:-103.3510, lat:20.6543 }
+  drone:{ type:"dron", index:3, callout:"DR-03", lng:-103.3510, lat:20.6543 },
+  demoRobot:{ type:"perro", index:4, callout:"ZM-22", lng:-103.3498, lat:20.6602 },
+  demoAmb:{ type:"humanoide", index:4, callout:"HU-12", lng:-103.3462, lat:20.6610 },
+  demoDrone:{ type:"dron", index:4, callout:"DR-09", lng:-103.3475, lat:20.6595 }
 };
 
-/* Rutas teatro: dron = recta; terrestre = quiebres “de calle”. */
+/* Rutas teatro hacia el incidente correspondiente. */
 const UNIT_ROUTE = {
   drone:{
     kind:"air",
@@ -283,6 +293,34 @@ const UNIT_ROUTE = {
       [-103.3505, 20.6612],
       [-103.3529, 20.6612],
       [-103.3529, 20.6619]
+    ]
+  },
+  demoDrone:{
+    kind:"air",
+    colorToken:"--accent-green",
+    coords:[
+      [-103.3475, 20.6595],
+      [-103.3480, 20.6628]
+    ]
+  },
+  demoRobot:{
+    kind:"ground",
+    colorToken:"--accent-purple",
+    coords:[
+      [-103.3498, 20.6602],
+      [-103.3498, 20.6615],
+      [-103.3480, 20.6615],
+      [-103.3480, 20.6628]
+    ]
+  },
+  demoAmb:{
+    kind:"ground",
+    colorToken:"--accent-blue",
+    coords:[
+      [-103.3462, 20.6610],
+      [-103.3462, 20.6620],
+      [-103.3480, 20.6620],
+      [-103.3480, 20.6628]
     ]
   }
 };
@@ -568,6 +606,9 @@ const UNIT_BY_CODE = {
   "ZM-14":{ unitId:"robot", markerKey:"perro-1", callout:"ZM-14", colorToken:"--accent-purple", kind:"ground" },
   "HU-07":{ unitId:"amb", markerKey:"humanoide-1", callout:"HU-07", colorToken:"--accent-blue", kind:"ground" },
   "DR-03":{ unitId:"drone", markerKey:"dron-3", callout:"DR-03", colorToken:"--accent-green", kind:"air" },
+  "ZM-22":{ unitId:"demoRobot", markerKey:"perro-4", callout:"ZM-22", colorToken:"--accent-purple", kind:"ground" },
+  "HU-12":{ unitId:"demoAmb", markerKey:"humanoide-4", callout:"HU-12", colorToken:"--accent-blue", kind:"ground" },
+  "DR-09":{ unitId:"demoDrone", markerKey:"dron-4", callout:"DR-09", colorToken:"--accent-green", kind:"air" },
   "ZM-21":{ markerKey:"perro-2", callout:"ZM-21", colorToken:"--accent-purple", kind:"ground" },
   "ZM-08":{ markerKey:"perro-3", callout:"ZM-08", colorToken:"--accent-purple", kind:"ground" },
   "B-04":{ markerKey:"humanoide-2", callout:"B-04", colorToken:"--accent-blue", kind:"ground" }
@@ -631,12 +672,14 @@ window.nexusShowIncidentAssignedUnits = function nexusShowIncidentAssignedUnits(
     const link = UNIT_BY_CODE[u.code];
     if(!link) return;
 
-    /* Si hay ruta teatro fija al incidente principal y el destino coincide, úsala. */
+    /* Ruta teatro fija si el destino coincide con el incidente de esa unidad. */
     let coords = null;
-    if(link.unitId && UNIT_ROUTE[link.unitId]
-       && Math.abs(target[0] - INCIDENT_LL[0]) < 1e-5
-       && Math.abs(target[1] - INCIDENT_LL[1]) < 1e-5){
-      coords = UNIT_ROUTE[link.unitId].coords;
+    if(link.unitId && UNIT_ROUTE[link.unitId]){
+      const route = UNIT_ROUTE[link.unitId];
+      const end = route.coords[route.coords.length - 1];
+      if(Math.abs(target[0] - end[0]) < 1e-4 && Math.abs(target[1] - end[1]) < 1e-4){
+        coords = route.coords;
+      }
     }
 
     const placed = focusAssignedUnitMarker(link.markerKey, link.callout || u.code, target);
@@ -683,6 +726,19 @@ window.nexusShowPatrolRoute = function nexusShowPatrolRoute(coords, opts){
 };
 
 window.nexusClearMapRoute = clearUnitRoute;
+
+window.nexusFocusMapOnPoint = function nexusFocusMapOnPoint(lng, lat, opts){
+  if(lng == null || lat == null || Number.isNaN(Number(lng)) || Number.isNaN(Number(lat))) return;
+  const zoom = (opts && opts.zoom != null) ? opts.zoom : 16.55;
+  const duration = (opts && opts.duration != null) ? opts.duration : 1100;
+  map.easeTo({
+    center:[Number(lng), Number(lat)],
+    zoom,
+    duration,
+    padding: mapPadding(),
+    essential:true
+  });
+};
 
 function distanciaMetros(a, b){
   const toRad = d => d * Math.PI / 180;

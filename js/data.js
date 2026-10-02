@@ -438,7 +438,44 @@ const INCIDENT_STATUS = {
 const INCIDENT_PRIORITY_RANK = { high:0, medium:1, low:2 };
 const INCIDENT_STATUS_RANK = { open:0, dispatched:1, attending:2, closed:3 };
 
+/* Clips del guion demo: accidente automovilístico (arco → unidades). */
+const DEMO_ACCIDENT_STREAMS = {
+  scene: "assets/accidente-arco-carretero.mp4",
+  robot: "assets/accidente-perro.mp4",
+  amb: "assets/accidente-humanoide.mp4",
+  drone: "assets/accidente-dron.mp4"
+};
+
 const INCIDENTS = [
+  {
+    id:"inc-0410",
+    folio:"4300090410",
+    type:"Accidente automovilístico",
+    priority:"high",
+    status:"attending",
+    sector:"Sector 1 Norte",
+    address:"Acceso Norte · ARC-02",
+    elapsed:"03:40",
+    cam:"ARC-02",
+    stream:DEMO_ACCIDENT_STREAMS.scene,
+    description:"Accidente automovilístico detectado por arco carretero ARC-02. Dos vehículos involucrados; carril derecho obstruido. Vigía despacha ZM-22, HU-12 y DR-09 con óptica en vivo.",
+    units:[
+      { code:"ZM-22", kind:"Perro robot", eta:"4 min", stream:DEMO_ACCIDENT_STREAMS.robot },
+      { code:"HU-12", kind:"Humanoide", eta:"6 min", stream:DEMO_ACCIDENT_STREAMS.amb },
+      { code:"DR-09", kind:"Dron de vigilancia", eta:"Sobrevolando", stream:DEMO_ACCIDENT_STREAMS.drone }
+    ],
+    history:[
+      { t:"12:01", text:"Detección automática en arco ARC-02" },
+      { t:"12:02", text:"Clasificado como accidente automovilístico · prioridad alta" },
+      { t:"12:03", text:"Validación visual en stream del arco" },
+      { t:"12:04", text:"Despacho de ZM-22, HU-12 y DR-09" },
+      { t:"12:05", text:"DR-09 en estación sobre el punto" }
+    ],
+    markerIndex:"6",
+    lng:-103.3480,
+    lat:20.6628,
+    demo:true
+  },
   {
     id:"inc-0172",
     folio:"4300090172",
